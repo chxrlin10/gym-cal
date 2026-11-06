@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gym.cal</title>
+<meta name="description" content="Calorias, treino e progresso em um só lugar."><meta name="theme-color" content="#0e1b3d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Gym.cal">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e1b3d'/%3E%3Cpath d='M16 6a10 10 0 0 1 10 10' fill='none' stroke='%238fb0ff' stroke-width='3.5' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23ffffff' stroke-opacity='.3' stroke-width='3.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);--bg:#f3f5f9;--card:#fff;--tx:#0e1627;--mut:#5d6b85;--ac:#1d4ed8;--on:#fff;--acs:#e8eefc;--bd:#e2e7f0;--mu:#d3dbe9;--or:#d9650a;--hero:#0e1b3d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0b1020;--card:#141c30;--tx:#e8edf8;--mut:#93a0bb;--ac:#6f95ff;--on:#0b1020;--acs:#1c2a52;--bd:#232d47;--mu:#2c3860;--or:#ff9a3d;--hero:#16234a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0b1020;--card:#141c30;--tx:#e8edf8;--mut:#93a0bb;--ac:#6f95ff;--on:#0b1020;--acs:#1c2a52;--bd:#232d47;--mu:#2c3860;--or:#ff9a3d;--hero:#16234a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:88px;-webkit-font-smoothing:antialiased}
+header,main{max-width:520px;margin:0 auto;padding:0 16px}
+header{padding-top:14px}
+main{padding-bottom:16px}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.brand{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-weight:600;font-size:18px;letter-spacing:-.01em}
+.brand svg{width:24px;height:24px;color:var(--ac)}
+.brand span{color:var(--ac)}
+.seg{display:flex;background:var(--acs);border-radius:12px;padding:3px;gap:3px;margin-bottom:14px}
+.seg button{flex:1;min-width:0;border:0;background:none;color:var(--mut);font:inherit;font-weight:500;padding:9px 10px;border-radius:9px;min-height:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg button.on{background:var(--card);color:var(--tx);font-weight:600;box-shadow:0 1px 2px rgba(14,22,39,.14)}
+.seg button.add{flex:0 0 auto;color:var(--ac);font-weight:600;padding:9px 14px}
+h2{font-size:15px;font-weight:600;margin:22px 0 8px;letter-spacing:-.01em}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:12px}
+.num{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-weight:700}
+.mut{color:var(--mut);font-size:13px}
+.row{display:flex;align-items:center;gap:8px}.sp{justify-content:space-between}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.note{background:var(--acs);border-radius:12px;padding:12px;font-size:14px;margin-bottom:12px}
+.dn{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-weight:600}
+.ib{border:1px solid var(--bd);background:var(--card);color:var(--tx);width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font:inherit;font-size:20px;padding:0}
+.ib:disabled{opacity:.35}.ib.pri{background:var(--ac);border-color:var(--ac);color:var(--on)}
+.ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hero{background:var(--hero);color:#fff;border:0;padding:20px 16px}
+.hero .mut{color:#b9c6ea}
+.ring{position:relative;width:208px;max-width:70%;margin:0 auto 16px}
+.ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .big{font-size:62px;line-height:1}
+.big.over{color:#ffb26b}
+.eq{display:flex;align-items:flex-start;justify-content:space-between;margin:14px 0 4px;text-align:center}.eq>div{flex:1;display:flex;flex-direction:column}.eq b{font-size:20px;font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;line-height:1.1}.eq span{font-size:11px}.eq i{font-style:normal;color:#b9c6ea;padding-top:1px;font-size:18px}.eq .off{opacity:.45;text-decoration:line-through}.tl{display:block;margin:2px auto 14px;background:none;border:0;color:#b9c6ea;font:inherit;font-size:12px;text-decoration:underline;padding:6px;cursor:pointer}
+.macs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.macs b{font-weight:600;font-size:15px;display:block}
+.mb{height:4px;background:rgba(255,255,255,.18);border-radius:9px;margin:6px 0 4px;overflow:hidden}
+.mb i{display:block;height:100%;border-radius:9px}
+.bar{height:6px;background:var(--acs);border-radius:9px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;background:var(--ac);border-radius:9px}
+.bar.t{position:relative;margin:0}
+.bar.t::after{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1px dashed var(--mut)}
+label{display:block;font-size:13px;font-weight:500;color:var(--mut);margin:12px 0 5px}
+.card>label:first-child{margin-top:0}
+input,select,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:11px;min-width:0;min-height:44px}
+.btn{border:0;background:var(--ac);color:var(--on);border-radius:12px;padding:12px 16px;font:inherit;font-weight:600;width:100%;margin-top:12px;min-height:46px}
+.btn.s{background:var(--acs);color:var(--ac)}
+.btn.d{background:none;color:var(--or);border:1px solid var(--or)}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--bd);margin-top:10px}
+.x{border:0;background:none;color:var(--mut);width:40px;height:40px;display:grid;place-items:center;padding:0}
+.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.ex{display:grid;grid-template-columns:1fr 84px 32px;gap:10px;align-items:start;padding:12px 0;border-top:1px solid var(--bd)}
+.ex.first{border-top:0}
+.ex input[type=checkbox]{width:28px;height:28px;min-height:0;padding:0;accent-color:var(--ac);margin-top:8px}
+.ex input[type=number]{padding:8px;min-height:44px}
+.more{margin-top:2px}
+.more>summary{font-size:13px;color:var(--ac);font-weight:500}
+.more>summary::after{content:""!important}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kv>div{background:var(--bg);border-radius:12px;padding:12px;font-size:13px;color:var(--mut)}
+.kv b{display:block;font-size:24px;line-height:1.1;color:var(--tx);font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif}
+details>summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";color:var(--mut);font-weight:400;font-size:20px}
+details[open]>summary::after{content:"−"}
+details.more>summary::after,details.more[open]>summary::after{content:""}
+.pill{display:inline-block;padding:4px 10px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);font-size:13px;margin:0 6px 6px 0}
+.pill.on{background:var(--ac);color:var(--on)}
+.pill.sm{font-size:12px;padding:2px 8px;margin:0 4px 4px 0}
+.mapw{max-width:400px;margin:10px auto 6px}
+.mr{display:grid;grid-template-columns:116px 1fr 76px;gap:8px;align-items:center;padding:5px 0;font-size:14px}
+.mr .bar{margin:0}
+.mr .mut{text-align:right}
+.sup{padding:12px 0;border-top:1px solid var(--bd)}
+.sup:first-of-type{border-top:0;padding-top:0}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs button{flex:1;border:0;background:none;color:var(--mut);font:inherit;font-size:11px;font-weight:500;padding:6px 0;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:48px}
+.tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button.on{color:var(--ac);font-weight:600}
+.ex{grid-template-columns:116px 1fr;gap:6px 12px;align-items:start}
+.demo{width:100%;height:auto;background:var(--bg);border-radius:10px;display:block}
+.inp{grid-column:1/-1;display:flex;align-items:center;gap:12px}
+.inp input[type=number]{width:140px;padding:8px}
+.sr{display:grid;grid-template-columns:30px 1fr 1fr 44px;gap:8px;align-items:center;margin-top:6px}.sr.h{margin-top:10px;font-size:12px;color:var(--mut)}.sr .n{font-weight:600;color:var(--mut);text-align:center}.sr input[type=number]{width:100%;padding:8px;text-align:center}.sr input[type=checkbox]{margin:0 auto;display:block}.hint{font-size:13px;color:var(--mut);margin-top:8px}.hint b{color:var(--tx)}
+.chk{display:flex;align-items:center;gap:8px;margin:0;color:var(--tx);font-size:14px}
+.ex .inp input[type=checkbox]{margin-top:0}
+.how{margin:6px 0;padding-left:18px;font-size:13px}.how li{margin:3px 0}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px}
+.fr{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin:0 0 6px;color:var(--tx);font:inherit;min-height:44px}
+.fr .mut{white-space:nowrap}
+.chp{border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;min-width:40px;padding:0 6px;min-height:44px;font:inherit;font-weight:600}
+.chp.on{background:var(--ac);border-color:var(--ac);color:var(--on)}
+#chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.fp{margin-top:12px;border-top:1px solid var(--bd);padding-top:12px}
+</style></head><body>
+<header id="hd"></header><main id="app"></main><nav class="tabs" id="tabs" aria-label="Seções"></nav>
+<script>
+const $=s=>document.querySelector(s),R=Math.round;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dk=d=>d.toLocaleDateString("sv");
+const nf=x=>(Math.round(x*2)/2).toString().replace(".",",");
+const ICON={hoje:'<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/>',treino:'<path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/>',prog:'<path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/>',guia:'<path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4zM8 17h10"/>',perfil:'<circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/>'};
+const TABS=[["hoje","Hoje"],["treino","Treino"],["prog","Progresso"],["guia","Guia"],["perfil","Perfil"]];
+const chev=d=>`<svg viewBox="0 0 24 24"><path d="${d}"/></svg>`;
+const XI='<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const MEALS=["Café da manhã","Almoço","Lanche","Jantar"];
+const FD1=`Arroz branco cozido|128|2.5|28|0.2|colher de servir:45;escumadeira:90;prato raso (porção média):160|G|1.6
+Arroz integral cozido|124|2.6|26|1|colher de servir:45;escumadeira:90;prato raso (porção média):150|G|2.7
+Macarrão cozido|140|4.5|28|0.8|pegador:80;prato raso (porção média):200|G|1.5
+Pão francês|300|8|58.6|3.1|unidade:50|G|2.3
+Pão de forma|253|8.5|49|3.5|fatia:25|G|2.5
+Pão de forma integral|253|9.4|44|3.4|fatia:25|G|6.9
+Pão de queijo|363|5|34|24|unidade média:30;unidade grande:50|U|0.6
+Tapioca (goma hidratada)|240|0|60|0|unidade média (1 disco):50;unidade grande:80|G|0
+Cuscuz de milho cozido|113|2.2|25|0.7|fatia:80;prato raso (porção média):150|G|2.1
+Aveia em flocos|394|13.9|66.6|8.5|colher de sopa:15;3 colheres de sopa:45|G|9.1
+Granola|420|10|64|14|colher de sopa:12;porção (3 colheres):36|U|8
+Farinha de mandioca|365|1.2|87|0.3|colher de sopa:15|G|6.5
+Farofa pronta|406|2.5|75|10.5|colher de sopa:15|U|5
+Biscoito cream cracker|432|10|68|14|unidade:6;porção (5 unidades):30|U|2.5
+Biscoito recheado|472|6|71|18|unidade:12;pacote pequeno:36|U|1.7
+Biscoito maizena|443|8|75|11|unidade:6;porção (5 unidades):30|U|1.5
+Pipoca estourada (sem óleo)|387|13|78|4.5|xícara:8;saco de micro-ondas:80|G|14
+Batata inglesa cozida|52|1.2|11.9|0|unidade média:130|G|1.3
+Batata-doce cozida|77|0.6|18.4|0.1|unidade média:130;fatia:50|G|2.2
+Mandioca cozida|125|0.6|30|0.3|pedaço médio:100|G|1.9
+Inhame cozido|97|2.3|23|0.2|pedaço médio:100|G|1.7
+Milho verde cozido|98|3.2|17|1.2|colher de sopa:20;espiga (só os grãos):100|G|3.9
+Batata frita|312|3.8|41|15|porção pequena:100;porção média:150;porção grande:200|U|3.8
+Feijão carioca cozido|76|4.8|13.6|0.5|concha média:100;concha cheia:140|L|8.5
+Feijão preto cozido|77|4.5|14|0.5|concha média:100;concha cheia:140|L|8.4
+Lentilha cozida|93|6.3|16.3|0.5|colher de servir:50;concha média:100|L|7.9
+Grão-de-bico cozido|150|8|25|2.5|colher de servir:50;concha média:100|L|7.6
+Ervilha cozida|88|7|13|0.5|colher de sopa:15;colher de servir:40|L|5
+Peito de frango grelhado|159|32|0|2.5|filé pequeno:80;filé médio:120;filé grande:160|P|0
+Coxa de frango assada|190|27|0|8.5|unidade:90|P|0
+Sobrecoxa de frango assada|215|24|0|13|unidade:100|P|0
+Nugget de frango|296|15|18|18|unidade:20;porção (6 unidades):120|U|0
+Carne moída refogada|212|26|0|11|colher de servir:60;porção:100|P|0
+Bife de alcatra grelhado|240|32|0|12|bife pequeno:80;bife médio:120;bife grande:160|P|0
+Patinho grelhado|219|35.9|0|7.3|bife médio:100;bife grande:150|P|0
+Filé mignon grelhado|220|32|0|10|bife médio:100;bife grande:150|P|0
+Contrafilé grelhado|278|32|0|16|bife médio:100;bife grande:150|P|0
+Picanha grelhada|290|26|0|20|fatia:80;porção:150|P|0
+Hambúrguer bovino grelhado|260|20|0|19|unidade:80|P|0
+Linguiça toscana grelhada|270|16|0|22|unidade:80|U|0
+Salsicha cozida|250|10|3|22|unidade:50|U|0
+Bacon frito|540|37|1.4|42|fatia:8|U|0
+Presunto fatiado|120|15|1.5|5|fatia:15|U|0
+Peito de peru fatiado|105|17|2|3|fatia:15|U|0
+Mortadela|269|12|3|23|fatia:15|U|0
+Ovo cozido|146|13.3|0.6|9.5|unidade:50|P|0
+Ovo frito|240|15|1|19|unidade:50|P|0
+Omelete|154|11|1|12|unidade (2 ovos):110|P|0
+Clara de ovo cozida|59|11|0|0.1|unidade:33|P|0
+Tilápia grelhada|128|26|0|2.7|filé pequeno:80;filé médio:120|P|0
+Salmão grelhado|229|23|0|15|filé médio:120;filé grande:180|P|0
+Atum em conserva (escorrido)|116|26|0|1|lata:120;colher de sopa:20|P|0
+Sardinha em conserva|208|25|0|11|lata:84;unidade:30|P|0
+Camarão cozido|100|20|0|1.5|porção:100;unidade média:12|P|0
+Pescada cozida|107|21|0|1.8|filé:120|P|0
+Leite integral|61|3.2|4.7|3.3|copo:200;xícara de chá:240;copo grande:300|D|0
+Leite desnatado|35|3.4|5|0.1|copo:200;xícara de chá:240;copo grande:300|D|0
+Iogurte natural|60|3.5|4.7|3.3|pote:170;copo:200|D|0
+Iogurte grego natural|97|9|4|5|pote:170|D|0
+Iogurte de frutas|80|2.5|13|2|pote:170|U|0
+Queijo mussarela|330|22|3|25|fatia:15;fatia grossa:25|D|0
+Queijo minas frescal|264|17|3|20|fatia:30;pedaço:50|D|0
+Queijo prato|360|23|2|29|fatia:15|D|0
+Queijo parmesão ralado|453|36|2|33|colher de sopa:10|D|0
+Requeijão cremoso|260|9|3|24|colher de sopa:30;colher de chá:10|U|0
+Ricota|140|12|3|8|fatia:30;porção:50|D|0
+Creme de leite|221|2|4|22|colher de sopa:15|O|0
+Leite condensado|321|7.7|57|8|colher de sopa:20|U|0
+Manteiga|726|0.4|0.1|82|ponta de faca:5;colher de chá:5;colher de sopa:15|O|0
+Margarina|595|0|0.5|66|ponta de faca:5;colher de chá:5;colher de sopa:15|O|0
+Sorvete de creme|200|3.5|24|10|bola:60;casquinha:90|U|0
+Chocolate ao leite|535|7.5|59|30|quadradinho:5;barra pequena:25;barra:90|U|0
+Brigadeiro|390|5|60|15|unidade:20|U|0`;
+const FD3=`Macarrão instantâneo (seco, pacote)|440|9|60|18|pacote:85;metade do pacote:42|U|2
+Cereal matinal de milho|375|7|84|1|porção (30 g):30;tigela:50|U|3
+Cereal matinal achocolatado|390|6|80|5|porção (30 g):30;tigela:50|U|4
+Salgadinho de milho (pacote)|520|7|58|30|punhado:25;pacote pequeno:40;pacote médio:90|U|2
+Batata chips|540|6|50|35|punhado:25;pacote pequeno:25;pacote médio:90|U|4
+Achocolatado em pó|400|4|90|3|colher de sopa:10|U|5
+Achocolatado pronto (caixinha)|75|3|11|2|caixinha:200|U|0
+Wafer recheado|510|5|65|25|unidade:6;pacote:30|U|1
+Pão de hambúrguer ou cachorro-quente|280|9|50|4|unidade:50|U|2
+Lasanha congelada|150|7|18|5|bandeja pequena:300|U|1
+Pizza congelada|250|10|30|10|fatia:100;pizza individual:200|U|2
+Picolé de frutas|90|0|22|0|unidade:60|U|0
+Picolé cremoso|150|2|22|6|unidade:60|U|0
+Pudim de leite|190|4.5|31|5|fatia:100|U|0
+Bolo simples|300|5|48|10|fatia:60|U|1
+Bolo de cenoura com cobertura|360|5|50|16|fatia:80|U|1
+Leite fermentado (tipo Yakult)|70|1|14|0.1|frasco:80|D|0
+Iogurte desnatado|40|4|6|0.2|pote:170|D|0
+Leite em pó integral|500|26|39|27|colher de sopa:15|D|0
+Salame|400|22|2|34|fatia:10|U|0
+Milho em conserva|85|3|17|1|colher de sopa:20|V|3
+Café com leite com açúcar|50|1.5|7|1.5|xícara pequena:100;xícara grande:200|O|0
+Néctar de fruta (caixinha)|50|0|12|0|copo:200;caixinha:200|U|0
+Suco em pó (preparado)|20|0|5|0|copo:200|U|0
+Energético|45|0|11|0|lata:250|U|0
+Bombom|480|5|60|24|unidade:15|U|1
+Paçoca|510|14|49|30|unidade:20|U|3
+Wrap ou tortilha|300|8|52|7|unidade:60|U|2
+Tapioca com recheio de queijo|230|7|35|7|unidade média:90|G|0`;
+const FD5=`Frango desfiado cozido|163|31.5|0|3.2|colher de servir:40;porção:100|P|0
+Frango empanado frito (filé)|260|20|14|14|filé médio:120|U|1
+Fraldinha grelhada|240|28|0|14|bife médio:100;porção:150|P|0
+Maminha grelhada|195|30|0|8|fatia:80;porção:120|P|0
+Acém cozido|215|27|0|11|pedaço médio:100|P|0
+Bisteca suína grelhada|250|27|0|16|unidade:120|P|0
+Pernil suíno assado|215|28|0|11|fatia:80|P|0
+Costelinha suína assada|290|24|0|21|porção:120|P|0
+Coração de frango grelhado|210|26|0|11|espetinho:60|P|0
+Linguiça de frango grelhada|190|18|1|13|unidade:80|U|0
+Hambúrguer de frango grelhado|190|20|3|10|unidade:80|U|0
+Atum fresco grelhado|140|29|0|2|filé médio:120|P|0
+Merluza empanada frita|230|13|16|12|filé médio:100|U|1
+Lula frita|200|15|10|11|porção:100|U|0.5
+Camarão frito|230|17|12|13|porção:100|U|0.5
+Ovo mexido|175|11|1.5|13|porção (2 ovos):100|P|0
+Ovo de codorna cozido|158|13|0.4|11|unidade:10|P|0
+Queijo provolone|360|26|2|28|fatia:20|D|0
+Queijo cheddar|400|25|1.5|33|fatia:20|D|0
+Queijo gorgonzola|355|21|2|29|fatia:20|D|0
+Leite de soja|40|3.3|1.5|2|copo:200|D|0.5
+Leite de aveia|45|1|8|1|copo:200|D|0.5
+Leite de amêndoas|25|0.7|0.6|2.2|copo:200|D|0.3
+Leite de coco|190|2|3|19|colher de sopa:15|O|0
+Bebida láctea|70|2.5|12|1.5|copo:200|D|0
+Achocolatado com leite|80|3|12|2.5|copo:200|D|0.3
+Chantilly|300|2|13|27|colher de sopa:15|U|0
+Quinoa cozida|120|4.4|21|1.9|colher de sopa:20;xícara:185|G|2.8
+Arroz parboilizado cozido|123|2.6|26|0.4|colher de servir:45;escumadeira:90|G|1
+Macarrão integral cozido|124|5.3|26|0.5|pegador:80;prato raso (porção média):200|G|3.9
+Macarrão à bolonhesa|150|8|19|4.5|prato raso (porção média):250|O|1.5
+Macarrão ao molho de tomate|130|4|23|2.5|prato raso (porção média):250|G|1.5
+Nhoque ao molho|140|3.5|27|2|prato raso (porção média):250|G|1.5
+Polenta cozida|70|1.5|15|0.3|fatia:80|G|1
+Pão sírio|275|9|55|1.2|unidade:50|G|2
+Pão de centeio|259|8.5|48|3.3|fatia:30|G|5
+Pão de batata|290|7|52|5|unidade:50|G|2
+Bolacha de arroz|380|8|81|2.5|unidade:8|G|1.5
+Muesli|360|10|66|6|colher de sopa:15;porção:40|G|8
+Farinha de aveia|390|14|66|8|colher de sopa:10|G|9
+Farofa de ovo|330|7|45|13|colher de sopa:20|U|3
+Mamão formosa|45|0.5|11.6|0.1|fatia média:150|F|1.8
+Caqui|70|0.6|19|0.2|unidade média:150|F|3.6
+Figo|74|0.8|19|0.3|unidade:50|F|2.9
+Pêssego|40|0.9|9.5|0.3|unidade média:130|F|1.5
+Ameixa|46|0.7|11|0.3|unidade:60|F|1.4
+Cereja|63|1|16|0.2|unidade:8|F|2.1
+Framboesa|52|1.2|12|0.7|punhado:50|F|6.5
+Mirtilo|57|0.7|14|0.3|punhado:50|F|2.4
+Jabuticaba|58|0.6|15|0.1|unidade:8;xícara:140|F|1.5
+Acerola|33|0.9|8|0.2|unidade:5;xícara:100|F|1.5
+Caju|43|1|10|0.3|unidade:60|F|1.7
+Jaca|88|1.4|22|0.3|bago:25|F|1.5
+Pitaya|50|1|11|0.4|unidade:200|F|3
+Limão|29|1|9|0.3|unidade:60|F|2.8
+Damasco seco|241|3.4|63|0.5|unidade:8|F|7
+Ameixa seca|240|2.2|64|0.4|unidade:8|F|7
+Banana passa|300|3.4|78|0.6|unidade:10|F|5
+Couve crua|27|2.9|4.3|0.5|folha:25|V|2.6
+Agrião|17|2.7|2.3|0.2|prato de salada:30|V|2
+Acelga|20|1.8|3.7|0.2|prato de salada:40|V|1.6
+Espinafre cru|23|2.9|3.6|0.4|prato de salada:30|V|2.2
+Pimentão|28|1|6|0.2|unidade média:120|V|2
+Rabanete|16|0.7|3.4|0.1|unidade:15|V|1.6
+Palmito|30|2.5|4.3|0.5|unidade:40|V|2.5
+Cogumelo champignon|22|3.1|3.3|0.3|unidade:15;porção:80|V|1
+Aspargo cozido|22|2.4|4|0.2|unidade:15|V|2
+Abóbora cabotiá cozida|48|1.4|10.8|0.7|colher de sopa:30|V|2
+Sopa de legumes|40|1.5|7|0.8|concha:200;prato fundo:350|V|1.5
+Caldo verde|70|3|8|3|concha:200;prato fundo:350|V|1.5
+Sopa de feijão|80|4|11|2|concha:200;prato fundo:350|L|3
+Feijão branco cozido|140|9|25|0.5|concha média:100|L|6
+Feijão fradinho cozido|120|8|21|0.7|concha média:100|L|5
+Soja cozida|150|13|10|7.5|colher de servir:50|L|5
+Hummus|170|8|14|10|colher de sopa:15|L|6
+Proteína de soja texturizada (hidratada)|95|13|6|1|colher de servir:50|L|3
+Tempeh|193|19|9|11|fatia:50|L|5
+Chocolate amargo 70%|580|8|34|43|quadradinho:5;barra pequena:25|U|11
+Chocolate branco|540|6|58|32|quadradinho:5|U|0
+Cookie|480|5|65|22|unidade:30|U|2
+Donut|400|5|45|22|unidade:60|U|1.5
+Croissant|410|8|45|21|unidade:60|U|2
+Brownie|400|5|55|18|unidade:50|U|2.5
+Pão de mel|380|5|65|12|unidade:40|U|1.5
+Beijinho|390|3|55|17|unidade:20|U|2
+Goiabada|270|0.5|70|0.1|fatia:30|U|2
+Jujuba ou bala de goma|350|3|82|0|unidade:5|U|0
+Churros|330|5|40|17|unidade:60|U|1
+Torta de limão|320|4|42|15|fatia:100|U|0.5
+Sorvete de massa (chocolate)|215|4|26|11|bola:60|U|1
+Esfiha aberta de carne|240|10|30|9|unidade:80|U|2
+Enroladinho de salsicha|300|9|30|16|unidade:70|U|1.5
+Bolinha de queijo frita|330|10|28|20|unidade:25|U|0.5
+Pizza de calabresa|275|11|30|12|fatia:100|U|2
+Hambúrguer com queijo (lanche)|270|13|23|14|unidade:150|U|1.5
+Sushi (uramaki, 8 unidades)|150|4|28|2|unidade:30;porção (8 unidades):240|O|1
+Sashimi de salmão|140|20|0|6|fatia:15;porção (5 fatias):75|P|0
+Temaki de salmão|160|6|26|3|unidade:150|O|1
+Yakisoba|130|6|17|4|prato raso (porção média):300|O|2
+Acarajé|290|8|27|17|unidade:100|U|4
+Pastel de queijo (frito)|340|9|31|20|unidade média:80|U|1
+Panqueca de carne|190|9|20|8|unidade:100|O|1
+Escondidinho de carne|160|9|17|6|porção:250|O|1.5
+Moqueca de peixe|130|13|4|7|concha:150;prato raso (porção média):250|O|0.5
+Bobó de camarão|160|9|11|9|concha:150|O|1
+Galinhada|150|10|20|3|prato raso (porção média):250|O|1
+Pão de alho|330|7|40|16|unidade:50|U|2
+Salada Caesar|150|6|8|11|prato:200|O|1.5
+Suco de maracujá natural|40|0.5|9|0|copo:200|O|0.3
+Suco de caju natural|40|0.4|10|0|copo:200|O|0.3
+Limonada com açúcar|40|0|10|0|copo:200|U|0
+Chocolate quente|85|3|12|3|xícara:200|U|0.5
+Cappuccino|90|2.5|12|3.5|xícara:200|U|0.3
+Chá mate|2|0|0.4|0|copo:200|O|0
+Kombucha|20|0|4.5|0|copo:250|O|0
+Vinho branco|82|0.1|2.6|0|taça:150|U|0
+Espumante|80|0.2|3|0|taça:120|U|0
+Batida de frutas com cachaça|160|0.3|20|0|copo:200|U|0
+Caseína (pó)|360|75|8|3|dose (30 g):30|P|0
+Albumina (pó)|380|80|3|0|colher de sopa:10|P|0
+Maltodextrina|380|0|95|0|colher de sopa:15|U|0
+Hipercalórico (pó)|380|15|70|3|dose (100 g):100|U|1
+Whey com leite|90|9|7|3|shake (300 ml):300|P|0`;
+const FD4=`Arroz com feijão (prato feito)|110|4|20|1|prato raso (porção média):250|G|4
+Feijão tropeiro|210|9|18|11|concha:100;prato raso (porção média):200|L|5
+Strogonoff de carne|150|12|5|9|concha:120;prato raso (porção média):200|O|1
+Frango xadrez|125|13|7|5|concha:120;prato raso (porção média):200|O|1
+Frango assado com pele|215|25|0|12|coxa:90;peito médio:150|P|0
+Carne de panela|180|26|2|8|pedaço médio:100;porção:150|P|0
+Costela bovina assada|330|24|0|26|pedaço médio:100|P|0
+Fígado bovino grelhado|190|29|4|6|bife médio:100|P|0
+Carne seca desfiada|250|32|0|13|colher de servir:40|P|0
+Peixe empanado frito|230|13|16|12|filé médio:100|U|1
+Peixe assado|140|24|0|4|filé médio:120|P|0
+Bacalhau cozido|135|29|0|2|posta:150|P|0
+Lombo suíno assado|210|28|0|10|fatia:80|P|0
+Almôndega de carne|200|15|8|12|unidade:30;porção (4 unidades):120|P|1
+Quibe assado|200|15|15|9|unidade média:70|O|2
+Quibe frito|270|14|20|15|unidade média:70|U|2
+Empada de frango|330|8|31|20|unidade:60|U|1
+Pão de queijo recheado|330|7|34|18|unidade:50|U|1
+Misto quente|290|14|28|13|unidade:120|U|2
+Sanduíche natural|180|9|21|6|unidade:130|O|3
+Cachorro-quente completo|250|10|25|12|unidade:180|U|2
+Pão com ovo|240|10|28|9|unidade:110|G|2
+Pão com manteiga|310|8|50|9|unidade:60|G|2
+Pão integral com queijo e peito de peru|210|13|24|7|sanduíche:120|G|4
+Tapioca com ovo|210|9|30|6|unidade média:120|G|0
+Crepioca|170|11|13|8|unidade:100|O|0
+Panqueca de aveia|180|8|22|6|unidade:60|G|3
+Cuscuz com ovo|150|7|20|5|prato raso (porção média):200|G|2
+Cuscuz com queijo|170|8|21|6|prato raso (porção média):200|G|2
+Mingau de aveia (com leite)|90|4|13|2.5|tigela:250|G|1.5
+Vitamina de banana com leite|85|3|15|2|copo:300|O|1
+Vitamina de frutas com leite|80|3|14|2|copo:300|O|1
+Smoothie de frutas (sem açúcar)|50|1|12|0.2|copo:300|F|1.5
+Suco de limão com açúcar|40|0|10|0|copo:200|U|0
+Suco de abacaxi natural|45|0.4|11|0|copo:200|O|0.3
+Suco de melancia natural|30|0.5|7|0|copo:200|O|0.2
+Suco verde (couve e laranja)|40|1|9|0.2|copo:200|V|1
+Chá sem açúcar|1|0|0.2|0|xícara:200|O|0
+Chá com açúcar|20|0|5|0|xícara:200|U|0
+Guaraná (refrigerante)|40|0|10|0|copo:200;lata:350|U|0
+Cerveja sem álcool|25|0.3|5|0|lata:350|U|0
+Caipirinha|130|0|10|0|copo:200|U|0
+Whisky ou vodka (dose)|230|0|0|0|dose:50|U|0
+Iogurte proteico|65|10|5|0.5|pote:170|D|0
+Queijo coalho grelhado|310|22|3|24|espetinho:50|D|0
+Queijo cottage|98|11|3.4|4.3|colher de sopa:30;pote:100|D|0
+Requeijão light|150|9|5|10|colher de sopa:30|D|0
+Pasta de amendoim integral|590|25|20|50|colher de sopa:15|O|6
+Chia|486|17|42|31|colher de sopa:12|O|34
+Linhaça|534|18|29|42|colher de sopa:10|O|27
+Semente de girassol|584|21|20|51|colher de sopa:10|O|9
+Nozes|654|15|14|65|unidade:4|O|7
+Tâmara|277|1.8|75|0.2|unidade:8|F|7
+Banana-da-terra frita|230|1|40|8|unidade:70|U|2
+Coco ralado|450|4|16|43|colher de sopa:8|O|9
+Pamonha|180|3|34|4|unidade:150|O|2
+Canjica|130|2.5|28|1.5|tigela:150|O|2
+Arroz doce|135|3|24|3|tigela:150|U|0.3
+Mousse de chocolate|220|4|25|12|pote:80|U|1
+Gelatina pronta|60|1.5|13|0|pote:120|U|0
+Bolo de chocolate com cobertura|390|5|55|17|fatia:80|U|2
+Sorvete de frutas|120|1|28|0.5|bola:60|U|0.5
+Açaí no copo com banana e leite em pó|180|3|30|6|copo pequeno (300 ml):300|O|3
+Pão doce|330|8|55|9|unidade:60|U|2
+Rosca|330|7|56|8|fatia:40|U|2
+Biscoito de polvilho|440|1|82|11|punhado:20|U|0.5
+Torrada|380|11|70|6|unidade:8|G|4
+Biscoito integral|420|8|70|13|unidade:6|U|5
+Salada de alface e tomate|13|1|2.5|0.2|prato de salada:100|V|1.5
+Salada de maionese|190|2|12|15|colher de servir:50|U|1
+Purê de batata|105|2|16|4|colher de servir:60|G|1.5
+Batata assada|90|2|20|0.1|unidade média:130|G|2
+Legumes cozidos (mix)|40|1.5|8|0.3|prato raso (porção média):120|V|3
+Espinafre refogado|60|3|4|4|colher de sopa:25|V|2.5
+Berinjela grelhada|35|1|7|0.3|fatia:30|V|2.5
+Quiabo refogado|70|2|7|4|colher de sopa:25|V|3
+Ervilha em lata|75|5|12|0.4|colher de sopa:15|L|4
+Edamame|120|11|9|5|xícara:100|L|5
+Tofu|76|8|2|5|fatia:80|L|1
+Hambúrguer de soja ou grão-de-bico|160|10|15|6|unidade:80|L|4
+Whey isolado (pó)|370|88|2|1|dose (1 scoop, 30 g):30|P|0
+Creatina (pó)|0|0|0|0|dose (5 g):5|O|0`;
+const FD2=`Banana prata|98|1.3|26|0.1|unidade média (sem casca):80;unidade grande:110|F|2
+Banana nanica|92|1.4|23.8|0.1|unidade média (sem casca):100|F|1.9
+Maçã|63|0.2|16.6|0.2|unidade pequena:100;unidade média:130;unidade grande:180|F|1.3
+Pera|53|0.6|14|0.1|unidade média:150|F|3
+Laranja|45|1|11.5|0.1|unidade pequena:100;unidade média:130;unidade grande:180|F|1.8
+Mexerica (tangerina)|38|0.8|9.6|0.2|unidade média:100|F|0.9
+Mamão papaia|40|0.5|10.4|0.1|mamão papaia inteiro (médio, só a polpa):400;fatia média:100|F|1.8
+Melão|29|0.7|7.5|0.1|melão inteiro (médio, só a polpa):900;fatia média:150|F|0.9
+Melancia|33|0.9|8.1|0.1|fatia pequena:150;fatia média:300;xícara (picada):150|F|0.4
+Abacaxi|48|0.9|12.3|0.1|fatia:75;xícara (picado):160|F|1
+Manga|65|0.4|16.7|0.2|unidade média:200;unidade pequena:130|F|1.6
+Uva|60|0.7|15|0.2|cacho pequeno:100;unidade:5|F|0.9
+Morango|30|0.9|6.8|0.3|unidade média:12;xícara:150|F|1.7
+Abacate|96|1.2|6|8.4|abacate inteiro (médio, só a polpa):200;colher de sopa:30|F|6.3
+Kiwi|51|1.3|11.5|0.6|unidade:70|F|3
+Goiaba vermelha|54|1.1|13|0.4|unidade média:150|F|6.2
+Maracujá (polpa)|68|2|12.3|2.1|unidade:30|F|1.1
+Açaí (polpa pura)|58|0.8|6.2|3.9|porção:100;tigela pequena (300 ml):300|F|2.6
+Açaí na tigela (com granola e banana)|140|2|24|4|tigela pequena (300 ml):300;tigela média (500 ml):500|U|1.5
+Coco fresco|406|3.7|10.4|42|pedaço:20|F|5.4
+Uva-passa|299|3|79|0.5|colher de sopa:15;punhado:30|F|3.7
+Castanha-do-pará|656|14|12.3|66|unidade:4|O|7.5
+Castanha de caju|570|18|30|44|unidade:2;punhado:30|O|3.3
+Amendoim torrado|581|26|20|47|punhado:30;colher de sopa:10|O|8
+Amêndoas|579|21|22|50|unidade:1.2;punhado:30|O|12
+Alface|11|1.4|1.7|0.2|folha:10;prato de salada:50|V|1.5
+Rúcula|25|2.6|3.7|0.7|prato de salada:30|V|1.6
+Tomate|15|1.1|3.1|0.2|fatia:20;unidade média:120|V|1.2
+Cenoura crua|34|1.3|7.7|0.2|colher de sopa ralada:15;unidade média:80|V|3.2
+Cenoura cozida|30|0.8|6.7|0.2|colher de sopa:20|V|2
+Brócolis cozido|25|2.1|4.4|0.5|colher de sopa:25;prato raso (porção média):100|V|3.4
+Couve refogada|90|1.7|8.7|6.6|colher de sopa:20|V|5.7
+Abobrinha cozida|19|1|4|0.2|colher de sopa:25|V|1.2
+Pepino|10|0.9|2|0.1|fatia:10;unidade média:200|V|1
+Cebola|39|1.7|8.9|0.1|fatia:15;unidade média:100|V|2.2
+Beterraba cozida|32|1.3|7.2|0.1|fatia:15;unidade média:100|V|3.4
+Chuchu cozido|19|0.4|4.8|0.1|colher de sopa:25|V|1
+Vagem cozida|25|1.5|6|0.2|colher de sopa:20|V|2.5
+Abóbora cozida|35|0.9|7|0.2|colher de sopa:30|V|1.8
+Repolho|17|1.4|3.9|0.1|xícara (picado):70|V|1.9
+Couve-flor cozida|23|1.9|4|0.4|buquê:30;prato raso (porção média):100|V|2.4
+Azeite de oliva|884|0|0|100|fio (colher de chá):5;colher de sopa:13|O|0
+Óleo de soja|884|0|0|100|colher de chá:5;colher de sopa:13|O|0
+Açúcar refinado|387|0|99.9|0|colher de chá:4;colher de sopa:12|U|0
+Mel|309|0.4|84|0|colher de chá:7;colher de sopa:20|O|0
+Geleia de frutas|250|0.3|65|0|colher de sopa:20|U|0
+Doce de leite|306|5|55|7|colher de sopa:20|U|0
+Creme de avelã (tipo Nutella)|539|6|58|31|colher de chá:7;colher de sopa:15|U|0
+Pasta de amendoim|588|25|20|50|colher de chá:6;colher de sopa:15|O|0
+Maionese|302|0.6|4|32|colher de chá:5;colher de sopa:15|U|0
+Ketchup|112|1.3|26|0.2|colher de sopa:17|U|0
+Molho de tomate|38|1|8|0.3|colher de sopa:30|O|0
+Café sem açúcar|2|0.1|0.3|0|xícara pequena:50;xícara grande:150|O|0
+Café com açúcar|32|0|8|0|xícara pequena:50;xícara grande:150|O|0
+Suco de laranja natural|45|0.7|10.4|0.2|copo:200|O|0
+Suco de uva integral|65|0.3|16|0|copo:200|O|0
+Água de coco|22|0|5.3|0|copo:200;coco:300|O|0
+Refrigerante de cola|42|0|10.6|0|copo:200;lata:350|U|0
+Refrigerante zero|1|0|0|0|copo:200;lata:350|U|0
+Cerveja|43|0.5|3.6|0|copo:300;lata:350;long neck:355|U|0
+Vinho tinto|85|0.1|2.6|0|taça:150|U|0
+Isotônico|24|0|6|0|garrafa:500|U|0
+Whey protein (pó)|400|80|8|6|dose (1 scoop, 30 g):30|P|0
+Barra de cereal|386|5|70|9|unidade:25|U|3
+Barra de proteína|370|33|35|12|unidade:60|U|3
+Feijoada|165|9|8|11|concha:150;prato raso (porção média):300|O|0
+Estrogonofe de frango|130|11|5|7|concha:120;prato raso (porção média):200|U|0
+Lasanha à bolonhesa|190|10|18|8|pedaço médio:250|U|0
+Pizza de muçarela|268|11|33|10|fatia:100;fatia grande:130|U|0
+Hambúrguer completo (lanche)|250|12|22|12|unidade:200|U|0
+Coxinha de frango (frita)|290|8|30|14|unidade pequena (festa):40;unidade média:70;unidade grande:120|U|0
+Pastel de carne (frito)|330|9|31|19|unidade média:80;unidade grande:120|U|0
+Salgado assado (esfiha, enroladinho)|290|9|33|13|unidade média:70|U|0`;
+const nz=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const FOODS=(FD1+"\n"+FD2+"\n"+FD3+"\n"+FD4+"\n"+FD5).split("\n").map((l,i)=>{const[n,k,p,c,f,po,cat,fib]=l.split("|");return{i,n,nz:nz(n),k:+k,p:+p,c:+c,f:+f,cat:cat||"O",fb:+fib||0,po:po.split(";").map(x=>{const j=x.lastIndexOf(":");return[x.slice(0,j),+x.slice(j+1)]})}});
+const COMUM=["Arroz branco cozido","Feijão carioca cozido","Peito de frango grelhado","Ovo cozido","Pão francês","Banana prata","Leite integral","Café com açúcar"].map(n=>FOODS.findIndex(f=>f.n===n));
+const AMTS=[[.25,"¼"],[.5,"½"],[.75,"¾"],[1,"1"],[1.5,"1½"],[2,"2"],[3,"3"]];
+let fsel=null,fpi=0,fam=1;
+const fq=v=>{const a=AMTS.find(x=>x[0]===v);return a?a[1]:String(Math.round(v*100)/100).replace(".",",")};
+const r1=x=>(Math.round(x*10)/10).toString().replace(".",",");
+const fpo=f=>f.po.concat([["gramas",1]]);
+const CATS=[["U","Industrializado, doce ou frito"],["F","Fruta"],["V","Verdura ou legume"],["L","Feijão, lentilha ou grão"],["P","Carne, ovo ou peixe"],["D","Leite ou derivado"],["G","Arroz, pão, massa ou tubérculo"],["O","Outro"]];
+const allF=()=>FOODS.concat((S.custom||[]).map((c,j)=>({i:FOODS.length+j,n:c.n+" (meu)",nz:nz(c.n),k:c.k,p:c.p,c:c.c,f:c.f,fb:c.fb||0,cat:c.cat||"O",po:[["porção do rótulo",c.por]]})));
+const FD=i=>allF()[i];
+function addCard(){fsel=null;return `<h2>Adicionar alimento</h2><div class="card"><label for="fm">Refeição</label><select id="fm">${MEALS.map((m,i)=>`<option ${i===(lm===null?mealNow():MEALS.indexOf(lm))?"selected":""}>${m}</option>`).join("")}</select><label for="fsq">Buscar alimento</label><input id="fsq" type="search" oninput="fsearch()" placeholder="Ex.: melão, pão, frango" autocomplete="off"><div id="fres"></div><div id="fsel"></div>
+ <div style="margin-top:14px"><label for="bcn">Código de barras</label><div class="row" style="gap:8px;flex-wrap:nowrap"><input id="bcn" type="number" inputmode="numeric" placeholder="Digite os números do código"><button class="btn s" style="margin:0;width:auto" onclick="bcGo()">Buscar</button></div>${BD?`<button class="btn s" style="margin-top:8px" onclick="bcScan()">Escanear com a câmera</button>`:""}<div id="bcm" class="mut" role="status" style="margin-top:6px"></div></div>
+ <details style="margin-top:14px"><summary>Não achou? Cadastre pelo rótulo</summary><div class="mut" style="margin-top:8px">Copie os valores da tabela nutricional, da coluna "por porção".</div><label for="cn">Nome</label><input id="cn"><div class="grid3"><div><label for="cs">Porção (g)</label><input id="cs" type="number" inputmode="decimal" value="100"></div><div><label for="ck">Calorias</label><input id="ck" type="number" inputmode="decimal"></div><div><label for="cq">Porções comidas</label><input id="cq" type="number" inputmode="decimal" step="0.25" value="1"></div></div><div class="grid3"><div><label for="cp">Proteína (g)</label><input id="cp" type="number" inputmode="decimal"></div><div><label for="cc">Carbo (g)</label><input id="cc" type="number" inputmode="decimal"></div><div><label for="cf">Gordura (g)</label><input id="cf" type="number" inputmode="decimal"></div></div><div class="grid3"><div><label for="cb">Fibra (g)</label><input id="cb" type="number" inputmode="decimal"></div><div style="grid-column:span 2"><label for="ct">Tipo</label><select id="ct">${CATS.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("")}</select></div></div><label class="chk" style="margin-top:12px"><input id="csv" type="checkbox" checked> Salvar para usar de novo</label><button class="btn s" onclick="addC()">Adicionar ao diário</button></details></div>`}
+function addC(){const n=$("#cn").value.trim(),kv=$("#ck").value;if(!n||kv==="")return;const por=+$("#cs").value||100,q=+$("#cq").value||1,v=x=>(+$("#"+x).value||0)*100/por,c={n,por,k:+kv*100/por,p:v("cp"),c:v("cc"),f:v("cf"),fb:v("cb"),cat:$("#ct").value},gr=q*por;
+ if($("#csv").checked)(S.custom=S.custom||[]).push(c);
+ push({m:$("#fm").value,n:n+" · "+fq(q)+" × porção ("+por+" g)",k:R(c.k*gr/100),p:R(c.p*gr/100),c:R(c.c*gr/100),f:R(c.f*gr/100),g:R(gr),fb:Math.round(c.fb*gr/10)/10,cat:c.cat})}
+function myFoods(){const a=S.custom||[];if(!a.length)return"";return `<details class="card" style="margin-top:12px"><summary>Alimentos que você cadastrou (${a.length})</summary>`+a.map((c,j)=>`<div class="item"><span>${esc(c.n)}<br><span class="mut">${R(c.k*c.por/100)} kcal por porção de ${c.por} g</span></span><button class="x" onclick="delCF(${j})" aria-label="Remover ${esc(c.n)}">${XI}</button></div>`).join("")+`</details>`}
+function delCF(j){S.custom.splice(j,1);save();render()}
+function lastW(id){const W=S.wt[id]||{},ks=Object.keys(W).sort();return ks.length?{d:ks[ks.length-1],v:W[ks[ks.length-1]]}:null}
+function daysSince(d){return Math.round((new Date(dk(new Date())+"T12:00:00")-new Date(d+"T12:00:00"))/864e5)}
+function wDue(p){if(!p.set)return false;const l=lastW(p.id);return !l||daysSince(l.d)>=7}
+function wCard(){const p=P(),l=lastW(p.id),n=l?daysSince(l.d):0,v=l?l.v:p.w;
+ return `<div class="card"><b>${l?"Atualizar o peso":"Registre seu peso"}</b><div class="mut">${l?`Último registro: ${v} kg, ${n===0?"hoje":n===1?"ontem":"há "+n+" dias"}. `:""}Pesar 1 vez por semana, de manhã e em jejum, já mostra a tendência. Não precisa registrar todo dia.</div><label for="kg">Peso (kg)</label><input id="kg" type="number" inputmode="decimal" step="0.1" value="${v}"><div class="row">${l?`<button class="btn s" onclick="wSame()">Continua ${v} kg</button>`:""}<button class="btn" onclick="addW()">Salvar peso</button></div></div>`}
+function wSame(){const l=lastW(pid());if(!l)return;(S.wt[pid()]=S.wt[pid()]||{})[dk(new Date())]=l.v;save();render()}
+const fx=(nm,pi,k)=>{const f=FOODS.find(x=>x.n===nm),po=f.po[pi||0];return `${nm.split(" (")[0].toLowerCase()} (${po[0]}: ${r1(f[k]*po[1]/100)} g)`};
+function tipsCard(){const p=P(),c=calc(p),id=pid(),L=S.log[id]||{},days=lastDays(7).map(d=>(L[d]||[]).filter(x=>x.g!=null)).filter(a=>a.length),n=days.length,sum=(a,k)=>a.reduce((s,x)=>s+(x[k]||0),0),avg=k=>n?days.reduce((s,a)=>s+sum(a,k),0)/n:0;
+ const fibM=p.sex==="m"?(p.age>50?30:38):(p.age>50?21:25),aK=avg("k"),aP=avg("p"),aF=avg("fb"),fv=n?days.reduce((s,a)=>s+a.filter(x=>x.cat==="F"||x.cat==="V").reduce((t,x)=>t+(x.g||0),0),0)/n:0,legD=days.filter(a=>a.some(x=>x.cat==="L")).length,kc=days.reduce((s,a)=>s+sum(a,"k"),0),ult=days.reduce((s,a)=>s+a.filter(x=>x.cat==="U").reduce((t,x)=>t+x.k,0),0),pct=kc?R(ult/kc*100):0;
+ const wc=(S.water[id]||{}),aw=lastDays(7).reduce((s,d)=>s+(wc[d]||0),0)/7,gl=Math.ceil(p.w*35/250),tr=recent(S.wk[id]||[]).length,adult=p.age>=18,T=[];
+ const kv=`<div class="kv" style="margin-bottom:10px"><div><b>${n?R(aF):"–"} / ${fibM} g</b>Fibra por dia</div><div><b>${n?R(aP):"–"} / ${c.pr} g</b>Proteína por dia</div><div><b>${n?R(fv):"–"} / 400 g</b>Frutas e legumes por dia</div><div><b>${n?R(aK):"–"} / ${c.t}</b>Calorias por dia</div></div>`;
+ if(n>=2){
+  if(aF<fibM*.8)T.push(["Coma mais fibra",`Você está em cerca de ${R(aF)} g por dia e a meta é ${fibM} g. Fibra dá saciedade e ajuda a segurar a fome no déficit. Boas fontes: ${["Feijão carioca cozido|0","Aveia em flocos|1","Pera|0","Brócolis cozido|1","Pão de forma integral|0"].map(s=>{const[a,b]=s.split("|");return fx(a,+b,"fb")}).join(", ")}.`]);
+  if(aP<c.pr*.9)T.push(["Falta proteína",`Média de ${R(aP)} g por dia, e a sua meta é ${c.pr} g. Proteína protege o músculo enquanto você emagrece. Boas fontes: ${["Peito de frango grelhado|1","Ovo cozido|0","Iogurte grego natural|0","Atum em conserva (escorrido)|0","Queijo minas frescal|0"].map(s=>{const[a,b]=s.split("|");return fx(a,+b,"p")}).join(", ")}${adult?", ou 1 dose de whey":""}.`]);
+  if(fv<300)T.push(["Mais frutas, verduras e legumes",`Você está em cerca de ${R(fv)} g por dia, e a recomendação é de pelo menos 400 g. Uma fruta no café da manhã e no lanche, mais salada no almoço e no jantar, costuma resolver. Eles trazem vitaminas, fibra e volume com poucas calorias.`]);
+  if(legD<Math.ceil(n*.5))T.push(["Feijão e leguminosas",`Você comeu feijão, lentilha ou grão-de-bico em ${legD} de ${n} dias. Eles somam fibra, ferro e proteína vegetal. Vale incluir pelo menos 4 vezes por semana.`]);
+  if(pct>30)T.push(["Muitos industrializados",`Cerca de ${pct}% das suas calorias vieram de industrializados, doces, frituras e bebidas açucaradas ou alcoólicas. Troque aos poucos: fruta no lugar da sobremesa, água ou refrigerante zero no lugar do refrigerante comum.`]);
+  if(aK>c.t*1.1)T.push(["Acima da meta",`Sua média é de ${R(aK)} kcal, ${R(aK-c.t)} acima da meta. Comece pelas porções de arroz e massa, pelo óleo e pelas bebidas calóricas.`]);
+  if(aK<c.bmr)T.push(["Abaixo do seu metabolismo basal",`A média de ${R(aK)} kcal está abaixo do gasto em repouso (${c.bmr} kcal). Se você registrou tudo, comer tão pouco não é recomendado e pode custar músculo. Se esqueceu de registrar alguma refeição, ignore este aviso.`]);
+  if(aw<gl*.7)T.push(["Beba mais água",`Média de ${r1(aw)} copos por dia, e a meta é ${gl}. Use o contador da tela Hoje.`]);
+  if(tr<(p.days||3))T.push(["Treinos da semana",`Você fez ${tr} de ${p.days||3} treinos nos últimos 7 dias. Treinar a força é o que mantém o músculo durante o emagrecimento.`]);
+  if(!T.length)T.push(["Muito bem",`Seu padrão dos últimos 7 dias está dentro das metas principais. Continue assim.`]);
+ }
+ const calc2=p.sex==="m"?(p.age>70?1200:1000):(p.age>50?1200:1000),fe=p.sex==="m"||p.age>50?8:18;
+ T.push(["Metas gerais pro seu perfil",`Cálcio: cerca de ${calc2} mg por dia (leite, iogurte, queijo, couve). Ferro: cerca de ${fe} mg por dia (feijão, carnes, folhas escuras; vitamina C, como laranja, ajuda a absorver). O app não conta esses dois, são referências.`]);
+ return `<h2>Sugestões de alimentação</h2><div class="card">${kv}${n<2?`<p class="mut" style="margin-top:0">Registre pelo menos 2 dias de refeições para gerar sugestões personalizadas. Considero os últimos 7 dias.</p>`:`<div class="mut" style="margin-bottom:6px">Com base em ${n} ${n===1?"dia registrado":"dias registrados"} dos últimos 7.</div>`}`+T.map(t=>`<div class="sup"><b>${t[0]}</b><div class="mut">${t[1]}</div></div>`).join("")+`<p class="mut" style="margin-bottom:0">Sugestões gerais, não substituem nutricionista.</p></div>`}
+function recFoods(){const L=S.log[pid()]||{},seen=[],a=allF();Object.keys(L).sort().reverse().slice(0,6).forEach(d=>L[d].slice().reverse().forEach(x=>{const n=(x.n||"").split(" · ")[0],f=a.find(y=>y.n===n);if(f&&!seen.includes(f.i))seen.push(f.i)}));return seen.slice(0,6).map(i=>a[i])}
+const BD=typeof window!=="undefined"&&"BarcodeDetector" in window&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia;
+let bcStream=null,bcLoop=0;
+const bcMsg=t=>{const e=$("#bcm");if(e)e.textContent=t};
+async function bcGo(code){code=String(code||($("#bcn")||{}).value||"").replace(/\D/g,"");if(code.length<8){bcMsg("Digite os números do código de barras (8 a 14 dígitos).");return}
+ const ex=(S.custom||[]).findIndex(c=>c.bc===code);if(ex>=0){bcMsg("");fpick(FOODS.length+ex);return}
+ bcMsg("Buscando...");
+ try{const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),9000),r=await fetch("https://world.openfoodfacts.org/api/v2/product/"+code+".json?fields=product_name,brands,nutriments,serving_quantity,nova_group",{signal:ctl.signal});clearTimeout(tm);const j=await r.json(),p=j&&j.status===1?j.product:null,n=p&&p.nutriments||{};
+  if(!p||!p.product_name||n["energy-kcal_100g"]==null){bcMsg("Produto não encontrado na base. Cadastre pelo rótulo logo abaixo.");const d=$("#app details");if(d)d.open=true;return}
+  const por=+p.serving_quantity>0?+p.serving_quantity:100,nm=(p.product_name+(p.brands?" ("+p.brands.split(",")[0].trim()+")":"")).slice(0,60);
+  (S.custom=S.custom||[]).push({n:nm,por,k:+n["energy-kcal_100g"]||0,p:+n.proteins_100g||0,c:+n.carbohydrates_100g||0,f:+n.fat_100g||0,fb:+n.fiber_100g||0,cat:+p.nova_group>=4?"U":"O",bc:code});save();bcMsg("");fpick(FOODS.length+S.custom.length-1)
+ }catch(e){bcMsg("Sem conexão ou busca indisponível. Tente de novo ou cadastre pelo rótulo.")}}
+function bcStop(){cancelAnimationFrame(bcLoop);if(bcStream){bcStream.getTracks().forEach(t=>t.stop());bcStream=null}const o=$("#bco");if(o)o.remove()}
+async function bcScan(){if(!BD)return;try{bcStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false})}catch(e){bcMsg("Não consegui acessar a câmera. Digite o código manualmente.");return}
+ const o=document.createElement("div");o.id="bco";o.style.cssText="position:fixed;inset:0;z-index:99;background:#000;display:flex;flex-direction:column";o.innerHTML=`<video id="bcv" playsinline muted style="flex:1;width:100%;object-fit:cover"></video><div style="padding:16px;text-align:center;color:#fff">Aponte para o código de barras<button class="btn s" style="margin-top:12px" onclick="bcStop()">Cancelar</button></div>`;document.body.appendChild(o);
+ const v=$("#bcv");v.srcObject=bcStream;await v.play().catch(()=>{});const det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]});
+ const tick=async()=>{if(!bcStream)return;try{const r=await det.detect(v);if(r.length){const c=r[0].rawValue;bcStop();const i=$("#bcn");if(i)i.value=c;bcGo(c);return}}catch(e){}bcLoop=requestAnimationFrame(()=>setTimeout(tick,200))};tick()}
+function fsearch(){const r=$("#fres");if(!r)return;const q=nz($("#fsq").value.trim());
+ const L=q?allF().filter(f=>f.nz.includes(q)).sort((a,b)=>(b.nz.startsWith(q)-a.nz.startsWith(q))||a.n.length-b.n.length).slice(0,8):(recFoods().length?recFoods():(S.custom||[]).map((c,j)=>FD(FOODS.length+j)).slice(-3).concat(COMUM.map(i=>FOODS[i])));
+ r.innerHTML=fsel!==null?"":`<div class="mut" style="margin:10px 0 6px">${q?(L.length?"Resultados":"Nenhum alimento encontrado. Cadastre um abaixo."):recFoods().length?"Usados recentemente":"Mais usados"}</div>`+L.map(f=>`<button class="fr" onclick="fpick(${f.i})"><span>${esc(f.n)}</span><span class="mut">${f.k} kcal/100 g</span></button>`).join("")}
+function fpick(i){fsel=i;fpi=0;fam=1;$("#fsq").value="";$("#fres").innerHTML="";fpanel()}
+function fclr(){fsel=null;$("#fsel").innerHTML="";fsearch()}
+function fpanel(){const f=FD(fsel),po=fpo(f);$("#fsel").innerHTML=`<div class="fp"><div class="row sp"><b>${esc(f.n)}</b><button class="x" onclick="fclr()" aria-label="Escolher outro alimento">${XI}</button></div>
+ <label for="fpo">Medida</label><select id="fpo" onchange="fset()">${po.map((x,i)=>`<option value="${i}">${x[1]===1?"gramas (se souber o peso)":x[0]+" (≈ "+x[1]+" g)"}</option>`).join("")}</select>
+ <label for="fam">Quanto você comeu?</label><div id="chips"></div><input id="fam" type="number" inputmode="decimal" step="0.25" min="0" value="${fam}" oninput="fset(1)" aria-label="Quantidade">
+ <div id="fpv" class="note" style="margin:10px 0 0" role="status"></div><button class="btn" onclick="addF()">Adicionar ao diário</button></div>`;fset()}
+function fset(inp){const f=FD(fsel),po=fpo(f),sel=+$("#fpo").value;
+ if(sel!==fpi){fpi=sel;fam=po[sel][1]===1?100:1;$("#fam").value=fam}else if(inp)fam=+$("#fam").value||0;
+ const g=po[sel][1],gr=fam*g;
+ $("#chips").innerHTML=g===1?"":AMTS.map(([v,l])=>`<button class="chp ${v===fam?"on":""}" onclick="fchip(${v})">${l}</button>`).join("");
+ $("#fpv").innerHTML=gr>0?`≈ ${R(gr)} g · <b>${R(f.k*gr/100)} kcal</b><br><span class="mut">Proteína ${r1(f.p*gr/100)} g · Carbo ${r1(f.c*gr/100)} g · Gordura ${r1(f.f*gr/100)} g</span>`:"Informe a quantidade."}
+function fchip(v){fam=v;$("#fam").value=v;fset()}
+function addF(){const f=FD(fsel);if(!f)return;const u=fpo(f)[fpi],gr=fam*u[1];if(!(gr>0))return;push({m:$("#fm").value,n:f.n+" · "+(u[1]===1?R(gr)+" g":fq(fam)+" × "+u[0]),k:R(f.k*gr/100),p:R(f.p*gr/100),c:R(f.c*gr/100),f:R(f.f*gr/100),g:R(gr),fb:Math.round((f.fb||0)*gr/10)/10,cat:f.cat||"O"})}
+const MUS=["Peitoral","Ombros","Tríceps","Costas","Trapézio","Bíceps","Antebraço","Quadríceps","Glúteos","Posterior de coxa","Panturrilha","Abdômen","Lombar"];
+const MAIN=["Peitoral","Costas","Ombros","Bíceps","Tríceps","Quadríceps","Posterior de coxa","Glúteos","Panturrilha","Abdômen"];
+const SH="M28 52C36 48 46 52 48 62C48 70 44 76 40 78C34 72 30 64 28 52Z",FA="M44 116C50 116 54 124 54 136L52 164C48 166 44 164 42 160C40 144 42 126 44 116Z",CF="M5 206C12 202 22 204 23 214C23 226 20 236 16 244C10 244 7 238 6 228Z";
+const MAP={front:{Ombros:[[SH,1]],Peitoral:[["M2 58C12 54 24 54 32 62C32 72 26 80 14 82C6 82 2 78 2 70Z",1]],Abdômen:[["M-12 88L12 88L11 128C8 134-8 134-11 128Z",0],["M14 88L26 92L24 122L13 126Z",1]],Bíceps:[["M40 80C46 80 50 86 50 96C50 104 48 110 44 112C40 108 38 96 40 80Z",1]],Antebraço:[[FA,1]],Quadríceps:[["M2 140C14 136 26 140 28 152C28 170 26 186 22 198C14 200 6 198 4 190C0 176 0 156 2 140Z",1]],Panturrilha:[["M6 206C14 204 22 206 22 214C22 226 20 238 17 246C11 246 8 240 6 230Z",1]]},
+back:{Trapézio:[["M0 40C10 44 22 52 30 60L14 76L0 100L-14 76L-30 60C-22 52 -10 44 0 40Z",0]],Ombros:[[SH,1]],Costas:[["M16 78C26 74 34 78 36 86C34 100 28 112 20 118L12 118C10 104 12 90 16 78Z",1]],Tríceps:[["M40 80C48 80 52 88 51 98C50 106 47 112 43 114C39 106 37 92 40 80Z",1]],Lombar:[["M-14 104L14 104L12 126L-12 126Z",0]],Antebraço:[[FA,1]],Glúteos:[["M2 128C14 124 28 128 30 140C30 150 22 156 12 156C4 156 2 148 2 140Z",1]],"Posterior de coxa":[["M3 160C14 158 26 160 27 172C27 184 25 192 22 200C14 202 6 200 4 192C1 180 2 168 3 160Z",1]],Panturrilha:[[CF,1]]}};
+const BASE=`<circle cx="0" cy="22" r="14" fill="var(--bd)"/><rect x="-5" y="34" width="10" height="14" fill="var(--bd)"/><path d="M-34 54C-20 48 20 48 34 54L32 90C28 108 26 120 28 134L-28 134C-26 120 -28 108 -32 90Z" fill="var(--bd)"/>`+[0,1].map(m=>`<g ${m?'transform="scale(-1,1)"':""} fill="var(--bd)"><path d="M34 54L52 62L56 112L60 166L44 168L36 118Z"/><path d="M0 134L28 134L31 196L25 248L4 248L2 196Z"/></g>`).join("");
+let curV={},curP=new Set();
+function selM(m){const e=$("#mcap");if(!e)return;const x=curV[m]||0;e.textContent=m+": "+(x?(curP.has(m)?"foco do treino, ":"músculo de apoio, ")+nf(x)+" séries":"não é trabalhado neste treino")}
+function body(v,prim){const mx=Math.max(3,...Object.values(v));
+ const fig=f=>BASE+Object.entries(MAP[f]).map(([m,l])=>{const x=v[m]||0,on=x>0,pr=prim.has(m),st=on?(pr?`fill="var(--ac)" fill-opacity="${(.55+.45*Math.min(1,x/mx)).toFixed(2)}" stroke="var(--card)"`:`fill="var(--ac)" fill-opacity=".25" stroke="var(--ac)" stroke-dasharray="3 2"`):`fill="var(--mu)" stroke="var(--card)"`;
+  return l.map(([d,mi])=>[0,mi?1:null].filter(k=>k!==null).map(k=>`<path d="${d}" ${k?'transform="scale(-1,1)"':""} ${st} stroke-width="1.2" onclick="selM('${m}')" style="cursor:pointer"><title>${m}</title></path>`).join("")).join("")}).join("");
+ return `<svg viewBox="0 0 440 270" width="100%" role="img" aria-label="Mapa dos músculos trabalhados, frente e costas"><g transform="translate(110,4)">${fig("front")}</g><g transform="translate(330,4)">${fig("back")}</g><text x="110" y="266" text-anchor="middle" font-size="12" fill="var(--mut)">Frente</text><text x="330" y="266" text-anchor="middle" font-size="12" fill="var(--mut)">Costas</text></svg>
+ <div id="mcap" class="mut" style="text-align:center;min-height:20px">Toque num músculo do desenho para ver o nome.</div>
+ <div class="mut" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:4px 0 8px"><span><i class="sw" style="background:var(--ac)"></i>Foco</span><span><i class="sw" style="border:1.5px dashed var(--ac);background:rgba(29,78,216,.15)"></i>Apoio</span><span><i class="sw" style="background:var(--mu)"></i>Não trabalha</span></div>`}
+const bn=(x1,x2,y)=>`<rect x="${x1}" y="${y}" width="${x2-x1}" height="5" rx="2"/><rect x="${x1+4}" y="${y+5}" width="3" height="${104-y-5}"/><rect x="${x2-7}" y="${y+5}" width="3" height="${104-y-5}"/>`;
+const FLAT=bn(26,100,80),SEAT='<rect x="46" y="89" width="34" height="5" rx="2"/><rect x="62" y="94" width="3" height="10"/>';
+const LYING=['h',84,76],SEATED=['h',62,86],STAND=['a',80,104];
+// pose = [torso, braço, antebraço, coxa, canela, (elevação do pé)] em graus; 0 = direita, 90 = baixo, -90 = cima
+const EX={
+'Supino reto':{p:['Peitoral'],s:['Ombros','Tríceps'],f:'mista; cargas altas recrutam as tipo II',pin:LYING,A:[180,-90,-90,10,85],B:[180,70,-90,10,85],o:'p',eq:FLAT,
+ how:['Deite com os pés firmes no chão e as escápulas juntas.','Desça a barra controlando, até perto da linha do peito.','Empurre pra cima sem tirar o quadril do banco.'],t:'escápulas juntas, pés firmes, barra desce até a linha do peito'},
+'Supino inclinado com halteres':{p:['Peitoral'],s:['Ombros','Tríceps'],f:'mista; ênfase na parte de cima do peitoral',pin:['h',72,84],A:[-125,-80,-85,-5,87],B:[-125,60,-100,-5,87],o:'p',eq:'<polygon points="46,52 52,47 80,84 72,90"/><rect x="66" y="88" width="30" height="4" rx="2"/><rect x="70" y="92" width="3" height="12"/>',
+ how:['Banco a 30°, halteres na altura do peito.','Empurre os halteres pra cima até quase estender os cotovelos.','Desça devagar, sentindo o peitoral alongar.'],t:'banco a 30°, cotovelos a uns 45° do tronco'},
+'Crucifixo':{p:['Peitoral'],s:['Ombros'],f:'mista; bom para volume',pin:LYING,A:[180,-92,-90,10,85],B:[180,75,60,10,85],o:'p',eq:FLAT,
+ how:['Comece com os halteres acima do peito, cotovelos levemente flexionados.','Abra os braços em arco até sentir o peitoral alongar.','Feche o arco como se abraçasse uma árvore.'],t:'cotovelos levemente flexionados, alongue sem forçar o ombro'},
+'Desenvolvimento':{p:['Ombros'],s:['Tríceps','Trapézio'],f:'mista',pin:STAND,A:[-90,80,-95,90,90],B:[-90,-85,-90,90,90],o:'p',eq:'',
+ how:['Halteres na altura dos ombros, abdômen firme.','Empurre pra cima até estender os braços.','Desça controlando até a altura das orelhas.'],t:'core firme, sem arquear a lombar'},
+'Elevação lateral':{p:['Ombros'],s:['Trapézio'],f:'mista; foco no deltoide médio',pin:STAND,A:[-90,90,90,90,90],B:[-90,-5,-5,90,90],o:'p',eq:'',
+ how:['Em pé, halteres ao lado do corpo, cotovelos levemente flexionados.','Suba os braços pelos lados até a altura dos ombros (no desenho, visto de lado).','Desça devagar, sem balançar o tronco.'],t:'suba até a altura do ombro, sem embalo'},
+'Rosca direta':{p:['Bíceps'],s:['Antebraço'],f:'mista (metade tipo I, metade tipo II)',pin:STAND,A:[-90,85,85,90,90],B:[-90,85,-70,90,90],o:'p',eq:'',
+ how:['Em pé, cotovelos colados ao corpo.','Flexione os cotovelos levando a carga até o peito.','Desça devagar até estender o braço.'],t:'cotovelos fixos, sem embalo do corpo'},
+'Rosca martelo':{p:['Bíceps'],s:['Antebraço'],f:'mista; pegada neutra puxa o braquial e o antebraço',pin:STAND,A:[-90,85,85,90,90],B:[-90,85,-70,90,90],o:'p',eq:'',
+ how:['Halteres com a pegada neutra (palmas viradas uma pra outra).','Suba os halteres sem girar o punho.','Desça controlando.'],t:'pegada neutra, ajuda na espessura do braço'},
+'Tríceps corda':{p:['Tríceps'],s:['Antebraço'],f:'tende a ter mais tipo II (rápidas)',pin:STAND,A:[-85,95,-30,90,90],B:[-85,95,90,90,90],o:'c',ax:[108,6],eq:'<rect x="106" y="0" width="5" height="104"/>',
+ how:['Em pé de frente pra polia, cotovelos colados ao corpo.','Estenda os cotovelos empurrando a corda pra baixo.','Abra a corda no fim e volte devagar.'],t:'cotovelos colados ao corpo, abra a corda no final'},
+'Tríceps testa':{p:['Tríceps'],s:['Ombros'],f:'tende a ter mais tipo II; trabalha bem a cabeça longa',pin:LYING,A:[180,-90,-90,10,85],B:[180,-90,135,10,85],o:'p',eq:FLAT,
+ how:['Deitado, barra acima do peito com os braços estendidos.','Dobre só os cotovelos levando a barra rumo à testa.','Estenda de volta sem abrir os cotovelos.'],t:'cotovelos fixos, apontando pra cima'},
+'Puxada frontal':{p:['Costas'],s:['Bíceps','Antebraço'],f:'mista',pin:SEATED,A:[-98,-80,-80,-10,88],B:[-98,110,-80,-10,88],o:'c',ax:[66,5],eq:SEAT+'<rect x="70" y="70" width="14" height="4" rx="2"/><rect x="50" y="0" width="34" height="4"/>',
+ how:['Sente com as coxas presas e a barra acima da cabeça.','Puxe a barra até a parte de cima do peito, levando os cotovelos pra baixo.','Volte controlando até esticar os braços.'],t:'puxe com os cotovelos, não com as mãos'},
+'Remada baixa':{p:['Costas'],s:['Bíceps','Trapézio'],f:'mista, com tipo I nos estabilizadores',pin:['h',54,86],A:[-72,3,3,-12,8],B:[-95,175,0,-12,8],o:'c',ax:[150,61],eq:'<rect x="40" y="89" width="30" height="5" rx="2"/><rect x="54" y="94" width="3" height="10"/><rect x="104" y="80" width="4" height="24"/><rect x="148" y="48" width="6" height="56"/>',
+ how:['Sente com os joelhos levemente flexionados e a coluna reta.','Puxe o triângulo até o abdômen, juntando as escápulas.','Volte devagar sem curvar as costas.'],t:'tronco firme, junte as escápulas no final'},
+'Remada curvada':{p:['Costas'],s:['Trapézio','Bíceps','Lombar'],f:'mista',pin:STAND,A:[-25,90,90,65,100],B:[-25,145,95,65,100],o:'p',eq:'',
+ how:['Joelhos semiflexionados, tronco inclinado e coluna neutra.','Leve a barra em direção ao umbigo, puxando os cotovelos pra trás.','Desça sem mexer o tronco.'],t:'coluna neutra, quadril pra trás, sem balançar o tronco'},
+'Agachamento':{p:['Quadríceps','Glúteos'],s:['Posterior de coxa','Lombar','Abdômen'],f:'mista; exige muito das tipo II',pin:STAND,A:[-90,60,-120,90,90],B:[-60,60,-120,10,105],o:'p',eq:'',
+ how:['Pés na largura dos ombros, barra apoiada nas costas, abdômen firme.','Desça empurrando o quadril pra trás, joelhos alinhados com os pés.','Suba empurrando o chão com o pé todo.'],t:'joelhos alinhados com os pés, desça até onde a coluna ficar neutra'},
+'Leg press':{p:['Quadríceps','Glúteos'],s:['Posterior de coxa'],f:'mista',pin:['h',44,84],A:[-135,70,20,-60,40],B:[-135,70,20,-25,-20],o:'l',eq:'<polygon points="14,50 22,44 50,86 40,90"/><rect x="40" y="88" width="22" height="4" rx="2"/>',
+ how:['Costas e quadril bem apoiados no encosto.','Empurre a plataforma até quase estender os joelhos.','Volte devagar, sem deixar o quadril sair do banco.'],t:'quadril colado no banco, sem travar os joelhos'},
+'Cadeira extensora':{p:['Quadríceps'],s:[],f:'mista',pin:SEATED,A:[-95,100,60,-8,95],B:[-95,100,60,-8,-10],o:'a',eq:SEAT+'<polygon points="36,56 42,52 62,88 54,90"/>',
+ how:['Ajuste o encosto e sente com o joelho alinhado ao eixo da máquina.','Estenda os joelhos até a perna ficar quase reta.','Segure 1 segundo no topo e desça devagar.'],t:'pausa de 1 s no topo, desça controlando'},
+'Mesa flexora':{p:['Posterior de coxa'],s:['Panturrilha'],f:'mista, tende a tipo II',pin:['h',84,80],A:[180,185,185,0,-5],B:[180,185,185,0,-140],o:'a',eq:bn(26,124,84),
+ how:['Deite de barriga pra baixo, com o rolo logo acima dos calcanhares.','Dobre os joelhos levando os calcanhares em direção aos glúteos.','Desça devagar (fase excêntrica).'],t:'quadril colado, desça devagar'},
+'Panturrilha em pé':{p:['Panturrilha'],s:[],f:'mais tipo I (resistente), responde bem a repetições altas',pin:STAND,A:[-90,90,90,90,90,0],B:[-90,90,90,90,90,7],o:'',eq:'',
+ how:['Em pé, apoie a ponta dos pés no degrau ou no chão.','Suba o máximo que conseguir na ponta dos pés.','Pause 1 segundo no alto e desça alongando bem.'],t:'amplitude completa, pausa de 1 s embaixo e em cima'},
+'Levantamento terra romeno':{p:['Posterior de coxa','Glúteos'],s:['Lombar','Trapézio','Antebraço'],f:'mista; muito tipo II',pin:STAND,A:[-90,90,90,90,90],B:[-25,90,90,75,95],o:'p',eq:'',
+ how:['Em pé com a barra rente às coxas e os joelhos semiflexionados.','Empurre o quadril pra trás, descendo a barra rente às pernas.','Suba apertando os glúteos, sem arredondar a lombar.'],t:'coluna neutra, a barra desliza perto das pernas'},
+'Elevação pélvica':{p:['Glúteos'],s:['Posterior de coxa','Quadríceps'],f:'mista',pin:['a',92,104],A:[208,20,35,-30,80],B:[183,3,3,0,80],o:'p',eq:bn(14,48,84),
+ how:['Apoie as costas no banco, pés firmes no chão e a barra sobre o quadril.','Suba o quadril até o tronco e as coxas ficarem alinhados.','Aperte os glúteos no topo e desça controlando.'],t:'queixo próximo ao peito, aperte os glúteos no topo'},
+'Prancha':{p:['Abdômen'],s:['Ombros','Glúteos'],f:'predomínio tipo I (resistência)',pin:['a',124,104],A:[192,90,0,12,12],B:[189,90,0,9,9],o:'',eq:'',
+ how:['Apoie os antebraços no chão, cotovelos sob os ombros.','Mantenha o corpo em linha reta, abdômen e glúteos contraídos.','Respire normalmente e segure o tempo indicado.'],t:'corpo em linha reta, sem deixar o quadril cair'},
+'Abdominal na polia':{p:['Abdômen'],s:[],f:'mista',pin:['h',74,78],A:[-85,-85,95,90,180],B:[-30,-30,150,90,180],o:'c',ax:[78,4],eq:'<rect x="86" y="0" width="5" height="104"/>',
+ how:['Ajoelhado de frente pra polia, corda junto à cabeça.','Enrole o tronco levando os cotovelos em direção aos joelhos.','Volte devagar, sem puxar com os braços.'],t:'enrole o tronco, sem puxar com os braços'},
+'Elevação de pernas':{p:['Abdômen'],s:['Quadríceps'],f:'mista; foco no abdômen inferior',pin:['h',84,100],A:[180,0,0,-90,-90],B:[180,0,0,-8,-8],o:'',eq:'<rect x="26" y="102" width="108" height="3" rx="1.5"/>',
+ how:['Deitado, mãos sob o quadril e lombar apoiada.','Suba as pernas até a vertical.','Desça sem encostar os pés no chão e sem arquear a lombar.'],t:'lombar apoiada, suba e desça sem balançar'}};
+const SETS={};
+const LT=28,LU=16,LF=15,LTH=24,LSH=23,NK=11,dr=a=>[Math.cos(a*Math.PI/180),Math.sin(a*Math.PI/180)];
+function joints(x,g){const[t,u,f,th,sh,lift]=g,dth=dr(th),ds=dr(sh);let hip;
+ if(x.pin[0]==='a'){const an=[x.pin[1],x.pin[2]-(lift||0)],kn=[an[0]-LSH*ds[0],an[1]-LSH*ds[1]];hip=[kn[0]-LTH*dth[0],kn[1]-LTH*dth[1]]}else hip=[x.pin[1],x.pin[2]];
+ const kn=[hip[0]+LTH*dth[0],hip[1]+LTH*dth[1]],an=[kn[0]+LSH*ds[0],kn[1]+LSH*ds[1]],dt=dr(t),S=[hip[0]+LT*dt[0],hip[1]+LT*dt[1]],hd=[S[0]+NK*dt[0],S[1]+NK*dt[1]],du=dr(u),df=dr(f),E=[S[0]+LU*du[0],S[1]+LU*du[1]],W=[E[0]+LF*df[0],E[1]+LF*df[1]];
+ return{hip,kn,an,S,hd,E,W,ft:x.pin[0]==='a'?Math.asin(Math.min(1,(lift||0)/9)):0}}
+function fig(x,J){const q=a=>a[0].toFixed(1)+","+a[1].toFixed(1);let o="";
+ if(x.o==='p')o=`<circle cx="${J.W[0].toFixed(1)}" cy="${J.W[1].toFixed(1)}" r="5.5" fill="var(--ac)"/>`;
+ else if(x.o==='a')o=`<circle cx="${J.an[0].toFixed(1)}" cy="${J.an[1].toFixed(1)}" r="4.5" fill="var(--ac)"/>`;
+ else if(x.o==='c')o=`<line x1="${x.ax[0]}" y1="${x.ax[1]}" x2="${J.W[0].toFixed(1)}" y2="${J.W[1].toFixed(1)}" stroke="var(--mut)" stroke-width="1.2"/><circle cx="${J.W[0].toFixed(1)}" cy="${J.W[1].toFixed(1)}" r="3.5" fill="var(--ac)"/>`;
+ else if(x.o==='l')o=`<line x1="${(J.an[0]+7).toFixed(1)}" y1="${(J.an[1]-14).toFixed(1)}" x2="${(J.an[0]+7).toFixed(1)}" y2="${(J.an[1]+12).toFixed(1)}" stroke="var(--ac)" stroke-width="4" stroke-linecap="round"/>`;
+ return `<g fill="none" stroke="var(--tx)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="${q(J.S)} ${q(J.hip)}"/><polyline points="${q(J.hip)} ${q(J.kn)} ${q(J.an)} ${(J.an[0]+9*Math.cos(J.ft)).toFixed(1)},${(J.an[1]+9*Math.sin(J.ft)).toFixed(1)}"/><polyline points="${q(J.S)} ${q(J.E)} ${q(J.W)}"/><circle cx="${J.hd[0].toFixed(1)}" cy="${J.hd[1].toFixed(1)}" r="6.5" fill="var(--card)"/></g>${o}`}
+function demo(n){const x=EX[n];if(!x)return"";return `<svg class="demo" viewBox="0 0 160 112" data-ex="${esc(n)}" role="img" aria-label="Demonstração de ${esc(n)}"><line x1="4" y1="104" x2="156" y2="104" stroke="var(--mu)" stroke-width="2"/><g fill="var(--mu)">${x.eq}</g><g opacity=".25">${fig(x,joints(x,x.B))}</g><g class="dyn">${fig(x,joints(x,x.A))}</g></svg>`}
+let raf=0,lastT=0;const calm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+function tick(ts){if(ts-lastT>33){lastT=ts;const e=.5-.5*Math.cos(2*Math.PI*((ts/1000)/2.8%1));document.querySelectorAll("svg.demo").forEach(sv=>{const x=EX[sv.dataset.ex],g=sv.querySelector(".dyn");if(!x||!g)return;g.innerHTML=fig(x,joints(x,[0,1,2,3,4,5].map(i=>(x.A[i]||0)+((x.B[i]||0)-(x.A[i]||0))*e)))})}raf=requestAnimationFrame(tick)}
+function startAnim(){cancelAnimationFrame(raf);if(!calm&&document.querySelector("svg.demo"))raf=requestAnimationFrame(tick)}
+const GUIA=[['Fibras musculares',`<p>Seu músculo mistura tipos de fibra, e a proporção varia de pessoa pra pessoa (em boa parte genética).</p><div class='kv'><div><b>Tipo I</b>Lenta, oxidativa. Resiste ao cansaço, postura e esforço longo. Responde bem a 15+ repetições e cardio.</div><div><b>Tipo IIa</b>Intermediária. Junta força e resistência. Bem ativa em 6 a 12 repetições.</div><div><b>Tipo IIx</b>Rápida, glicolítica. Explosão e força máxima, cansa rápido. Entra com carga alta (1 a 5 reps) ou perto da falha.</div></div><p>Treinar perto da falha recruta as fibras rápidas mesmo com carga moderada, e as tipo II tendem a crescer mais. O treino também converte parte das IIx em IIa.</p>`],
+['Como o músculo cresce',`<p>Três gatilhos: tensão mecânica (carga e amplitude completa), estresse metabólico (o “pump”) e dano muscular. O principal é a tensão mecânica em séries próximas da falha, com progressão de carga ao longo das semanas.</p>`],
+['Divisões de treino',`<p>O app monta a divisão pela sua rotina: com 2 a 3 dias, treino de corpo inteiro; com 4 dias, superior e inferior; com 5 dias, um grupo principal por dia; com 6 dias, empurrar, puxar e pernas repetidos duas vezes. Em todas, a ideia é treinar cada músculo 1 a 2 vezes por semana, com descanso entre um estímulo e outro.</p><p>Músculos de apoio (como o tríceps no supino) também são treinados indiretamente. Por isso o app conta as séries de apoio pela metade no resumo da semana.</p>`],
+['Repetições, descanso e volume',`<div class='kv'><div><b>1 a 5</b>Força. Descanso de 2 a 3 min.</div><div><b>6 a 12</b>Hipertrofia. Descanso de 1 a 2 min.</div><div><b>15+</b>Resistência. Descanso de 30 a 60 s.</div><div><b>10 a 20</b>Séries por grupo na semana, em 2 treinos.</div></div><p>Várias faixas funcionam se a série terminar perto da falha (sobrando 1 a 3 repetições). Iniciante rende bem com 8 a 12 séries por grupo.</p>`],
+['Emagrecer sem perder músculo',`<p>Déficit moderado (15 a 25%), proteína entre 1,6 e 2,2 g por kg, treino de força 3 a 4 vezes na semana e 7 a 9 h de sono. Perder mais de 1% do peso por semana aumenta o risco de perder massa magra. O que emagrece é o balanço calórico do dia, não um único treino ou alimento.</p>`],
+['Suplementos: o que tem evidência',`<p>A creatina monohidratada é o suplemento com mais respaldo para força e massa muscular (3 a 5 g por dia). O whey é só proteína em pó prática: ajuda a bater a meta, sem efeito especial sobre a comida. A cafeína melhora o desempenho em doses moderadas. BCAA, glutamina e termogênicos têm pouco ou nenhum benefício quando a dieta está em dia.</p><p>Suplemento ajuda no detalhe. O que decide o resultado é déficit calórico, proteína, treino e sono.</p>`],
+['Energia: de onde vem a força',`<p>Três sistemas trabalham juntos: ATP-CP (até uns 10 s, explosão), glicolítico (10 s a 2 min, séries intensas) e oxidativo (mais de 2 min, cardio leve). O que muda é a proporção de cada um. No esforço leve e longo, a gordura é a principal fonte.</p>`],
+['Hábitos que ajudam',`<p>Beba água ao longo do dia. Coloque proteína em toda refeição. Suba a carga aos poucos: quando fizer todas as repetições, aumente 1 a 2 kg. Pese-se na mesma hora, uma ou duas vezes por semana, e olhe a tendência, não o dia.</p>`],
+['Glossário',`<p><b>RIR</b>: repetições que sobraram antes da falha. <b>1RM</b>: carga máxima para 1 repetição. <b>Progressão de carga</b>: subir peso ou repetições com o tempo. <b>Excêntrica</b>: fase de descer o peso. <b>TMB</b>: gasto em repouso. <b>TDEE</b>: gasto total do dia.</p>`]];
+const uid=()=>"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const mk=n=>({id:uid(),name:n,sex:"m",age:30,w:80,h:175,lvl:1.375,def:20,days:3,exp:1,set:false});
+const KEYS=["log","wk","wt","water","last","cardio"];
+let S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};
+function norm(d,old){Object.assign(S,d);S.people.forEach((p,i)=>{p.id=p.id||String(i);if(p.age<18)p.set=false});KEYS.forEach(k=>{S[k]=S[k]||{}});S.custom=S.custom||[];
+ if(old)S.people=S.people.filter((p,i)=>i===0||p.set||KEYS.some(k=>S[k][p.id]&&Object.keys(S[k][p.id]).length));
+ S.act=Math.min(S.act||0,S.people.length-1)}
+try{const r=localStorage.getItem("gymcal2");if(r)norm(JSON.parse(r),false)}catch(e){}
+const save=q=>{if(!q)S.ts=Date.now();try{localStorage.setItem("gymcal2",JSON.stringify(S))}catch(e){}if(!q&&typeof sched==="function")sched()};
+const SB={u:"https://ypudxlvlssvulbfuwdxu.supabase.co",k:"sb_publishable_8lwXX3J2acaOGPWx6Cz9Cg_pgCBWs24"};
+let A=null,cl={st:"",ask:null,tm:0,arm:false};
+try{A=JSON.parse(localStorage.getItem("gymcal_auth")||"null")}catch(e){}
+const saveA=()=>{try{A?localStorage.setItem("gymcal_auth",JSON.stringify(A)):localStorage.removeItem("gymcal_auth")}catch(e){}};
+async function sb(path,o={},tk){const h=Object.assign({apikey:SB.k,"Content-Type":"application/json"},o.h||{});if(tk)h.Authorization="Bearer "+tk;const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),12000);try{const r=await fetch(SB.u+path,{method:o.m||"GET",headers:h,body:o.b?JSON.stringify(o.b):undefined,signal:ctl.signal});let j=null;try{j=await r.json()}catch(e){}return{ok:r.ok,s:r.status,j}}finally{clearTimeout(tm)}}
+function setA(j){A={at:j.access_token,rt:j.refresh_token,exp:j.expires_at||Math.floor(Date.now()/1e3)+(j.expires_in||3600),uid:j.user.id,email:j.user.email};saveA()}
+async function tok(){if(!A)return null;if(A.exp-Date.now()/1e3<60){const r=await sb("/auth/v1/token?grant_type=refresh_token",{m:"POST",b:{refresh_token:A.rt}});if(!r.ok){A=null;saveA();return null}setA(r.j)}return A.at}
+function cmsg(t){cl.st=t;const e=$("#cst");if(e)e.textContent=t}
+const hasData=()=>S.people[0].set||S.people.length>1||Object.keys(S.log).some(k=>Object.keys(S.log[k]||{}).length);
+async function cGet(){const t=await tok();if(!t)throw 0;const r=await sb("/rest/v1/user_data?select=data,updated_at&user_id=eq."+A.uid,{},t);if(!r.ok)throw 0;return r.j&&r.j[0]||null}
+async function cPush(){const t=await tok();if(!t)throw 0;const r=await sb("/rest/v1/user_data?on_conflict=user_id",{m:"POST",h:{Prefer:"resolution=merge-duplicates,return=minimal"},b:{user_id:A.uid,data:S,updated_at:new Date(S.ts||Date.now()).toISOString()}},t);if(!r.ok)throw 0}
+function applyRemote(d,rt){S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(d,false);S.ts=rt;save(true);tab=S.people[0].set?"hoje":"perfil";plan=""}
+async function cPull(first){if(!A)return;cmsg("Sincronizando...");try{const r=await cGet(),rt=r?Date.parse(r.updated_at):0,lt=S.ts||0;
+ if(!r){if(hasData()){await cPush();cmsg("Dados enviados para a sua conta.")}else cmsg("Conta conectada.")}
+ else if(!hasData()||(!first&&rt>lt)){applyRemote(r.data,rt);cmsg("Dados da conta carregados.")}
+ else if(first&&rt!==lt){cl.ask={d:r.data,rt};cmsg("")}
+ else if(lt>rt){await cPush();cmsg("Sincronizado.")}else cmsg("Sincronizado.")
+ }catch(x){cmsg("Sem conexão. Seus dados continuam salvos neste aparelho.")}render()}
+async function cAuth(up){const e=$("#cem").value.trim(),p=$("#cpw").value;if(!/.+@.+\..+/.test(e)){cmsg("Digite um e-mail válido.");return}if(p.length<8){cmsg("A senha precisa ter pelo menos 8 caracteres.");return}
+ cmsg(up?"Criando conta...":"Entrando...");
+ try{const r=await sb(up?"/auth/v1/signup":"/auth/v1/token?grant_type=password",{m:"POST",b:{email:e,password:p}});
+  if(!r.ok){const m=(r.j&&(r.j.msg||r.j.error_description||r.j.message))||"";cmsg(/invalid login/i.test(m)?"E-mail ou senha incorretos.":/already|registered/i.test(m)?"Esse e-mail já tem conta. Use Entrar.":/rate|limit/i.test(m)?"Muitas tentativas. Aguarde alguns minutos.":/not confirmed/i.test(m)?"Confirme seu e-mail pelo link que enviamos e tente de novo.":"Não deu certo ("+(m||"erro "+r.s)+").");return}
+  if(!r.j||!r.j.access_token){cmsg("Conta criada. Confirme pelo link que enviamos ao seu e-mail e depois toque em Entrar.");return}
+  setA(r.j);await cPull(true)}catch(x){cmsg("Sem conexão com o servidor. Tente de novo.")}}
+function cUse(c){const k=cl.ask;cl.ask=null;if(c){applyRemote(k.d,k.rt);cmsg("Dados da conta carregados.");render()}else{S.ts=Date.now();save(true);cPush().then(()=>cmsg("Dados deste aparelho enviados.")).catch(()=>cmsg("Sem conexão."));render()}}
+function cOut(){A=null;saveA();cl.ask=null;cl.arm=false;cmsg("");render()}
+async function cDel(){if(!cl.arm){cl.arm=true;render();return}cl.arm=false;try{const t=await tok();const r=await sb("/rest/v1/user_data?user_id=eq."+A.uid,{m:"DELETE"},t);if(!r.ok)throw 0;A=null;saveA();cmsg("Seus dados foram apagados da nuvem. Os dados deste aparelho continuam.")}catch(x){cmsg("Não consegui apagar agora. Tente de novo.")}render()}
+function sched(){if(!A)return;clearTimeout(cl.tm);cl.tm=setTimeout(()=>cPush().then(()=>cmsg("Sincronizado.")).catch(()=>cmsg("Sem conexão. Tento de novo na próxima alteração.")),3000)}
+function cloudCard(){const inp=`<style>.cl input{margin-bottom:8px}</style>`;
+ if(A&&cl.ask)return `<h2>Conta</h2><div class="card cl"><b>Dados diferentes encontrados</b><p class="mut">Este aparelho e a sua conta têm dados diferentes. Qual você quer manter?</p><button class="btn" onclick="cUse(1)">Usar os dados da conta</button><button class="btn s" onclick="cUse(0)">Manter os deste aparelho</button></div>`;
+ if(A)return `<h2>Conta</h2><div class="card cl"><div class="row sp"><span>Conectado como<br><b>${esc(A.email)}</b></span></div><p id="cst" class="mut" role="status" style="margin:8px 0">${esc(cl.st)}</p><div class="row"><button class="btn s" onclick="cPull(false)">Sincronizar agora</button><button class="btn s" onclick="cOut()">Sair</button></div><details style="margin-top:10px" ${cl.arm?"open":""}><summary>Apagar meus dados da nuvem</summary><p class="mut">Remove o seu backup do servidor. Os dados deste aparelho não são apagados.</p><button class="btn s" onclick="cDel()" style="color:var(--or)">${cl.arm?"Toque de novo para confirmar":"Apagar da nuvem"}</button></details></div>`;
+ return `<h2>Conta</h2><div class="card cl">${inp}<b>Guardar na nuvem</b><p class="mut" style="margin:4px 0 10px">Opcional. Entre para ter backup e usar o mesmo perfil em mais de um aparelho. Sem conta, tudo fica só neste aparelho.</p><label for="cem">E-mail</label><input id="cem" type="email" autocomplete="email" inputmode="email"><label for="cpw">Senha (mínimo 8 caracteres)</label><input id="cpw" type="password" autocomplete="current-password"><div class="row"><button class="btn" onclick="cAuth(0)">Entrar</button><button class="btn s" onclick="cAuth(1)">Criar conta</button></div><p id="cst" class="mut" role="status" style="margin:8px 0 0">${esc(cl.st)}</p></div>`}
+let tab=S.people[0].set?"hoje":"perfil",off=0,plan="A",msg="",lm=null,tmr=null,rmArm=false;
+const P=()=>S.people[S.act],pid=()=>P().id;
+const mealNow=()=>{const h=new Date().getHours();return h<10?0:h<15?1:h<18?2:3};
+function calc(p){const bmr=10*p.w+6.25*p.h-5*p.age+(p.sex==="m"?5:-161),tdee=bmr*p.lvl,t=Math.max(R(tdee*(1-p.def/100)),p.sex==="m"?1500:1200),pr=R(1.8*p.w),fa=R(.8*p.w);return{bmr:R(bmr),tdee:R(tdee),t,pr,fa,ca:Math.max(R((t-4*pr-9*fa)/4),0)}}
+function dayKey(){const d=new Date();d.setDate(d.getDate()+off);return dk(d)}
+function dayLabel(){if(off===0)return"Hoje";if(off===-1)return"Ontem";const d=new Date();d.setDate(d.getDate()+off);return d.toLocaleDateString("pt-BR",{weekday:"short",day:"numeric",month:"short"})}
+const items=()=>((S.log[pid()]||{})[dayKey()]||[]);
+const wat=()=>((S.water[pid()]||{})[dayKey()]||0);
+const recent=a=>a.filter(x=>Date.now()-new Date(x.d+"T12:00:00")<7*864e5);
+const mb=(v,t,c)=>`<div class="mb"><i style="width:${Math.min(100,R(v/t*100))}%;background:${c}"></i></div>`;
+const EXP=["Iniciante (menos de 6 meses)","Intermediário (6 meses a 2 anos)","Avançado (mais de 2 anos)"];
+const AGENDA={2:"segunda e quinta",3:"segunda, quarta e sexta",4:"segunda, terça, quinta e sexta",5:"de segunda a sexta",6:"de segunda a sábado"};
+const COMP=new Set(['Agachamento','Supino reto','Levantamento terra romeno','Remada curvada','Desenvolvimento','Leg press','Puxada frontal','Supino inclinado com halteres']);
+const SPL={
+fb:[["Corpo inteiro A",["Agachamento","Supino reto","Puxada frontal","Desenvolvimento","Tríceps corda","Prancha"]],["Corpo inteiro B",["Leg press","Supino inclinado com halteres","Remada baixa","Elevação lateral","Rosca direta","Abdominal na polia"]],["Corpo inteiro C",["Levantamento terra romeno","Crucifixo","Remada curvada","Rosca martelo","Tríceps testa","Panturrilha em pé"]]],
+ul:[["Superior A",["Supino reto","Remada baixa","Desenvolvimento","Puxada frontal","Rosca direta","Tríceps corda"]],["Inferior A",["Agachamento","Leg press","Mesa flexora","Panturrilha em pé","Prancha"]],["Superior B",["Supino inclinado com halteres","Puxada frontal","Elevação lateral","Remada curvada","Rosca martelo","Tríceps testa"]],["Inferior B",["Levantamento terra romeno","Cadeira extensora","Elevação pélvica","Panturrilha em pé","Abdominal na polia"]]],
+five:[["Peito e tríceps",["Supino reto","Supino inclinado com halteres","Crucifixo","Tríceps corda","Tríceps testa"]],["Costas e bíceps",["Puxada frontal","Remada baixa","Remada curvada","Rosca direta","Rosca martelo"]],["Pernas",["Agachamento","Leg press","Cadeira extensora","Panturrilha em pé"]],["Ombros e abdômen",["Desenvolvimento","Elevação lateral","Prancha","Abdominal na polia","Elevação de pernas"]],["Posterior e glúteos",["Levantamento terra romeno","Mesa flexora","Elevação pélvica","Elevação de pernas"]]],
+ppl:[["Empurrar A",["Supino reto","Supino inclinado com halteres","Desenvolvimento","Elevação lateral","Tríceps corda","Tríceps testa"]],["Puxar A",["Puxada frontal","Remada baixa","Remada curvada","Rosca direta","Rosca martelo"]],["Pernas A",["Agachamento","Leg press","Mesa flexora","Panturrilha em pé","Prancha"]],["Empurrar B",["Supino inclinado com halteres","Crucifixo","Desenvolvimento","Elevação lateral","Tríceps testa","Tríceps corda"]],["Puxar B",["Remada curvada","Puxada frontal","Remada baixa","Rosca martelo","Rosca direta","Elevação de pernas"]],["Pernas B",["Levantamento terra romeno","Cadeira extensora","Elevação pélvica","Panturrilha em pé","Abdominal na polia"]]]};
+function mkEx(n,e){if(n==="Prancha")return[n,3,"40 s"];if(n==="Panturrilha em pé")return[n,e?4:3,"15"];if(n==="Abdominal na polia"||n==="Elevação de pernas")return[n,3,"15"];if(COMP.has(n))return[n,e?4:3,e===0?"10":e===1?"8 a 10":"6 a 10"];return[n,3,e===0?"12":"10 a 12"]}
+function vol(ex){const v={};ex.forEach(([nm,n])=>{const x=EX[nm];if(!x)return;x.p.forEach(m=>v[m]=(v[m]||0)+n);x.s.forEach(m=>v[m]=(v[m]||0)+n*.5)});return v}
+function plansFor(p){const d=Math.min(6,Math.max(2,p.days||3)),e=p.exp==null?1:p.exp,sp=d<=3?SPL.fb.slice(0,d):d===4?SPL.ul:d===5?SPL.five:SPL.ppl,P={},keys=[];
+ sp.forEach(([nm,names],i)=>{const k="ABCDEF"[i],ex=names.map(n=>mkEx(n,e)),v=vol(ex),top=Object.keys(v).filter(m=>names.some(n=>EX[n].p.includes(m))).sort((a,b)=>v[b]-v[a]).slice(0,3);P[k]=[nm,ex,"Foco: "+top.join(", ").replace(/, ([^,]*)$/," e $1")+"."];keys.push(k)});return{P,keys}}
+function nextKey(id,keys){const l=(S.wk[id]||[]).slice(-1)[0],i=l?keys.indexOf(l.plan):-1;return keys[(i+1)%keys.length]}
+function weekVol(id){const ex=[];recent(S.wk[id]||[]).forEach(x=>(x.ex||[]).forEach((nm,i)=>ex.push([nm,(x.st&&x.st[i])||3])));return vol(ex)}
+function vTreino(){
+ const id=pid(),p=P(),PP=plansFor(p),keys=PP.keys;if(!PP.P[plan])plan=nextKey(id,keys);
+ const nx=nextKey(id,keys),[nm,ex,desc]=PP.P[plan],l=S.last[id]||{},w=S.wk[id]||[],wk=recent(w).length,d=Math.min(6,Math.max(2,p.days||3)),e0=p.exp==null?1:p.exp;
+ const v=vol(ex),prim=[...new Set(ex.flatMap(e=>EX[e[0]].p))],sec=[...new Set(ex.flatMap(e=>EX[e[0]].s))].filter(m=>!prim.includes(m)),vk=Object.keys(v).sort((a,b)=>v[b]-v[a]),mx=Math.max(...Object.values(v));
+ curV=v;curP=new Set(prim);
+ let h=`<div class="card"><div class="row sp"><b>Seu plano</b><button class="btn s" style="margin:0;width:auto;min-height:36px;padding:6px 14px" onclick="tab='perfil';render();scrollTo(0,0)">Alterar</button></div><div class="mut">${d} dias por semana · ${EXP[e0].split(" (")[0]}. Sugestão: treinar ${AGENDA[d]}. Próximo treino: <b style="color:var(--tx)">${nx} · ${esc(PP.P[nx][0])}</b>.</div></div>`;
+ h+=`<div class="seg" role="group" aria-label="Treino">${keys.map(k=>`<button class="${k===plan?"on":""}" onclick="pl('${k}')">${keys.length>4?k:"Treino "+k}</button>`).join("")}</div>`;
+ h+=`<div class="card"><b style="font-size:17px">Treino ${plan} · ${esc(nm)}</b><div class="mut">${desc}</div><div class="mapw">${body(v,new Set(prim))}</div><div>${prim.map(m=>`<span class="pill on">${m}</span>`).join("")}${sec.map(m=>`<span class="pill">${m}</span>`).join("")}</div><div class="mut" style="margin:2px 0 8px">Quanto mais forte a cor no desenho, mais séries pra aquele músculo.</div>`+vk.map(m=>`<div class="mr"><span>${m}</span><div class="bar"><i style="width:${R(v[m]/mx*100)}%"></i></div><span class="mut">${nf(v[m])} séries</span></div>`).join("")+"</div>";
+ h+=`<div class="card"><b>Exercícios</b><div class="mut">Veja como fazer, anote carga e repetições de cada série e marque ao concluir</div><div class="row" style="margin:12px 0 4px"><span class="mut">Descanso</span><button class="btn s" style="margin:0;min-height:40px;padding:8px" onclick="rest(60)">1 min</button><button class="btn s" style="margin:0;min-height:40px;padding:8px" onclick="rest(90)">1:30</button><button class="btn s" style="margin:0;min-height:40px;padding:8px" onclick="rest(120)">2 min</button><b id="rt" class="num" style="font-size:24px;min-width:48px;text-align:right"></b></div>`
+ +ex.map((e,i)=>{const x=EX[e[0]];return `<div class="ex${i?"":" first"}">${demo(e[0])}<div><b>${esc(e[0])}</b><div class="mut">${e[1]} séries × ${e[2]}</div><div style="margin-top:6px">${x.p.map(m=>`<span class="pill on sm">${m}</span>`).join("")}${x.s.map(m=>`<span class="pill sm">${m}</span>`).join("")}</div><details class="more"><summary>Como fazer</summary><ol class="how">${x.how.map(s=>`<li>${s}</li>`).join("")}</ol><div class="mut">Fibras: ${x.f}<br>Dica: ${x.t}</div></details></div>${exSets(e,i,id)}</div>`}).join("")
+ +`<button class="btn" onclick="fin()">Finalizar treino</button>${msg?`<p role="status" style="color:var(--ac);font-weight:600;margin:10px 0 0">${msg}</p>`:""}</div>`;
+ h+=cardCard();
+ const wv=weekVol(id),wks=Object.keys(wv).sort((a,b)=>wv[b]-wv[a]),miss=MAIN.filter(m=>(wv[m]||0)<6);
+ h+=`<h2>Sua semana</h2><div class="card"><div class="mut" style="margin-bottom:8px"><b style="color:var(--tx)">${wk}</b> ${wk===1?"treino":"treinos"} nos últimos 7 dias (meta: ${d}) · <b style="color:var(--tx)">${w.length}</b> no total</div>`;
+ if(wk)h+=wks.map(m=>`<div class="mr"><span>${m}</span><div class="bar t"><i style="width:${Math.min(100,R(wv[m]/20*100))}%"></i></div><span class="mut">${nf(wv[m])} séries</span></div>`).join("")+`<div class="mut" style="margin-top:8px">Linha tracejada: 10 séries. A faixa de referência para crescer é de 10 a 20 séries por grupo na semana. Séries de apoio contam metade.</div><p style="margin:10px 0 0">${miss.length?`Pouco trabalhados esta semana: <b>${miss.join(", ")}</b>.`:"Todos os grandes grupos receberam estímulo esta semana."}</p>`;
+ else h+='<div class="mut">Finalize um treino para ver quanto cada músculo foi trabalhado na semana.</div>';
+ h+="</div>";
+ if(w.length)h+="<h2>Histórico</h2><div class=\"card\">"+w.slice(-5).reverse().map(x=>`<details style="padding:6px 0"><summary><span style="display:inline-flex;width:calc(100% - 24px);justify-content:space-between;gap:8px"><span>${new Date(x.d+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"short",day:"numeric",month:"short"})} · Treino ${x.plan}</span><span class="mut">${x.n} exercícios${x.vl?" · "+x.vl.toLocaleString("pt-BR")+" kg":""}${x.kc?" · ~"+x.kc+" kcal":""}</span></span></summary><div style="margin-top:8px">${(x.det||[]).length?x.det.map(d=>`<div style="padding:3px 0"><b>${esc(d.n)}</b><div class="mut">${fmtS(d.s)}</div></div>`).join(""):'<span class="mut">Treino salvo antes do registro por série.</span>'}</div></details>`).join("")+"</div>";
+ msg="";return h;
+}
+let rsArm=false;
+function vPerfil(){
+ const p=P(),c=calc(p),o=(v,l,s)=>`<option value="${v}" ${String(s)===String(v)?"selected":""}>${l}</option>`,d=Math.min(6,Math.max(2,p.days||3)),e0=p.exp==null?1:p.exp,PP=plansFor(p);
+ return (p.set?"":`<div class="note">Bem-vindo! Preencha os dados abaixo para calcular a meta de calorias e montar o treino certo pra rotina.${S.people.length<4?" Pra usar com mais alguém, toque em <b>+ Pessoa</b> no topo: cada uma tem o seu perfil.":""}</div>`)+`<div class="card"><label for="pn">Nome</label><input id="pn" value="${p.set?esc(p.name):""}" placeholder="${esc(p.name)}" autocomplete="off">
+ <label for="ps">Sexo</label><select id="ps">${o("m","Masculino",p.sex)}${o("f","Feminino",p.sex)}</select>
+ <div class="grid3"><div><label for="pa">Idade</label><input id="pa" type="number" inputmode="numeric" value="${p.age}"></div><div><label for="pw">Peso (kg)</label><input id="pw" type="number" inputmode="decimal" value="${p.w}"></div><div><label for="ph">Altura (cm)</label><input id="ph" type="number" inputmode="numeric" value="${p.h}"></div></div>
+ <label for="pdays">Quantos dias por semana você treina?</label><select id="pdays">${[2,3,4,5,6].map(n=>o(n,n+" dias",d)).join("")}</select>
+ <label for="pexp">Experiência com musculação</label><select id="pexp">${EXP.map((t,i)=>o(i,t,e0)).join("")}</select>
+ <label for="pd">Ritmo de emagrecimento</label><select id="pd">${o(15,"Leve (15% a menos)",p.def)}${o(20,"Moderado (20% a menos)",p.def)}${o(25,"Mais firme (25% a menos)",p.def)}</select>
+ <label for="pg">Peso meta em kg (opcional)</label><input id="pg" type="number" inputmode="decimal" value="${p.goal||""}"><p id="perr" role="alert" style="color:var(--or);font-weight:600;margin:12px 0 0"></p><button class="btn" onclick="saveP()">Salvar e calcular</button></div>
+ <h2>Seu plano de treino</h2><div class="card"><div class="mut" style="margin-bottom:6px">Com ${d} dias por semana, o treino é dividido assim. Sugestão: treinar ${AGENDA[d]}.</div>${PP.keys.map(k=>`<div class="row sp" style="padding:6px 0"><span><b>Treino ${k}</b> · ${esc(PP.P[k][0])}</span><span class="mut">${PP.P[k][1].length} exercícios</span></div>`).join("")}</div>
+ <div class="card hero"><div class="mut">Meta diária para emagrecer</div><div class="num big" style="font-size:64px;line-height:1.1">${c.t}</div><div class="mut">kcal · gasto estimado de ${c.tdee} kcal por dia</div><p style="margin:10px 0 0">Proteína ${c.pr} g · Carboidrato ${c.ca} g · Gordura ${c.fa} g</p></div>
+ ${suppCard(p,c)}${bodyCard(p,c)}<p class="mut">Estimativa pela fórmula de Mifflin-St Jeor. Não substitui nutricionista, e vale conversar com um profissional antes de mudar muito a alimentação.</p>
+ ${S.act>0?`<button class="btn d" onclick="rmP()">${rmArm?"Toque de novo para confirmar a remoção":"Remover esta pessoa"}</button>`:""}
+ ${myFoods()}
+ ${cloudCard()}
+ <details class="card" style="margin-top:12px"><summary>Sobre o Gym.cal</summary><div style="margin-top:10px"><div class="mut">Versão 1.0.0</div><p><b>Aviso de saúde.</b> As metas e estimativas de calorias, gasto e suplementos são aproximações calculadas por fórmulas conhecidas (Mifflin-St Jeor, MET). Não são diagnóstico nem substituem médico, nutricionista ou educador físico. Procure um profissional antes de mudar muito a alimentação ou começar um treino, principalmente se tiver alguma condição de saúde. Menores de 18 anos não recebem sugestão de doses de suplementos.</p><p><b>Privacidade.</b> Sem conta, o app não envia nada pra internet e tudo fica salvo só neste aparelho. Apagar os dados do navegador apaga o seu histórico, então faça backup de vez em quando. Se você criar uma conta, uma cópia dos seus dados (perfil, refeições, treinos e peso) é guardada no servidor, protegida e visível só pra você. Você pode apagar essa cópia a qualquer momento na tela Perfil. Os dados não são vendidos nem usados para anúncios.</p></div></details>
+ <details class="card" style="margin-top:12px"><summary>Backup e dados</summary><p class="mut">Os dados ficam salvos só neste aparelho. Gere o backup, copie o texto e guarde. Pra restaurar, cole o texto e toque em Restaurar.</p><textarea id="bk" rows="4" aria-label="Backup"></textarea><div class="row"><button class="btn s" onclick="expo()">Gerar backup</button><button class="btn s" onclick="impo()">Restaurar</button></div><button class="btn d" onclick="resetAll()">${rsArm?"Toque de novo para apagar tudo":"Apagar todos os dados e recomeçar"}</button></details>`;
+}
+function saveP(){const p=P(),first=!p.set,E=$("#perr"),n=id=>+$(id).value,bad=[[n("#pa"),18,90,"Idade"],[n("#pw"),30,300,"Peso"],[n("#ph"),120,230,"Altura"]].find(a=>!(a[0]>=a[1]&&a[0]<=a[2]));
+ if(bad){E.textContent=bad[3]==="Idade"&&n("#pa")<18&&n("#pa")>0?"O Gym.cal é para maiores de 18 anos. Para menores, procure um médico ou nutricionista.":bad[3]+" precisa estar entre "+bad[1]+" e "+bad[2]+".";E.scrollIntoView({block:"center"});return}
+ const g=n("#pg");if(g&&(g<30||g>300)){E.textContent="Peso meta precisa estar entre 30 e 300 kg.";return}
+ E.textContent="";p.name=$("#pn").value.trim()||p.name;p.sex=$("#ps").value;p.age=+$("#pa").value||p.age;p.w=+$("#pw").value||p.w;p.h=+$("#ph").value||p.h;p.days=+$("#pdays").value;p.exp=+$("#pexp").value;p.lvl=p.days<=3?1.375:p.days<=5?1.55:1.725;p.def=+$("#pd").value;p.goal=+$("#pg").value||0;p.set=true;{const W=S.wt[p.id]=S.wt[p.id]||{},l=lastW(p.id);if(!l||l.v!==p.w)W[dk(new Date())]=p.w}plan="";save();if(first)tab="hoje";render();scrollTo(0,0)}
+function resetAll(){if(!rsArm){rsArm=true;render();return}try{localStorage.removeItem("gymcal2")}catch(e){}S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};tab="perfil";rsArm=false;plan="";render();scrollTo(0,0)}
+const ACT=[["Caminhada leve (4 km/h)",3],["Caminhada rápida (5,5 km/h)",4.3],["Caminhada inclinada na esteira",6],["Corrida leve (8 km/h)",8.3],["Corrida moderada (10 km/h)",9.8],["Corrida forte (12 km/h)",11.8],["Bicicleta leve",5.8],["Bicicleta forte ou spinning",8.5],["Elíptico",5],["Escada (simulador)",8.8],["Remo ergométrico",7],["Pular corda",11.8],["Natação",5.8],["HIIT",8]];
+const kgOf=p=>{const l=lastW(p.id);return l?l.v:p.w};
+const ckc=(p,i,m)=>R(ACT[i][1]*kgOf(p)*m/60);
+function wkEst(p,sets){const m=Math.min(120,5+sets*2.5);return{m:R(m),k:R(4.5*kgOf(p)*m/60)}}
+function burnDay(id,d,p){let k=0;(S.wk[id]||[]).forEach(x=>{if(x.d===d)k+=x.kc!=null?x.kc:wkEst(p,(x.st||[]).reduce((a,b)=>a+b,0)).k});((S.cardio[id]||{})[d]||[]).forEach(x=>{k+=x.k});return k}
+let cai=3,cmin=30;
+function cardCard(){const p=P(),id=pid(),td=dk(new Date()),L=(S.cardio[id]||{})[td]||[];
+ return `<h2>Cardio</h2><div class="card"><div class="mut">Opcional. Registre o cardio que fez para somar ao gasto do dia. Os valores são estimativas baseadas no seu peso (${kgOf(p)} kg).</div><label for="cat">Atividade</label><select id="cat" onchange="cdSet()">${ACT.map((a,i)=>`<option value="${i}" ${i===cai?"selected":""}>${a[0]}</option>`).join("")}</select><label for="cmin">Duração (minutos)</label><div class="row" style="gap:5px;flex-wrap:nowrap">${[15,30,45,60].map(m=>`<button class="chp ${m===cmin?"on":""}" onclick="cdChip(${m})">${m}</button>`).join("")}<input id="cmin" type="number" inputmode="numeric" min="1" value="${cmin}" oninput="cdSet(1)" aria-label="Minutos" style="min-width:0"></div><div id="cpv" class="note" style="margin:10px 0 0" role="status">≈ <b>${ckc(p,cai,cmin)} kcal</b> em ${cmin} min</div><button class="btn" onclick="addCd()">Adicionar cardio</button>`
+ +(L.length?`<div style="margin-top:12px">`+L.map((x,i)=>`<div class="item"><span>${esc(x.n)}<br><span class="mut">${x.min} min · ${x.k} kcal</span></span><button class="x" onclick="delCd(${i})" aria-label="Remover ${esc(x.n)}">${XI}</button></div>`).join("")+`</div>`:"")
+ +`<details style="margin-top:12px"><summary>Quanto gasta em 15 minutos</summary><div style="margin-top:8px">${ACT.map((a,i)=>`<div class="row sp" style="padding:5px 0"><span>${a[0]}</span><b>${ckc(p,i,15)} kcal</b></div>`).join("")}<div class="mut" style="margin-top:6px">Cálculo: MET da atividade × seu peso × tempo. Varia de pessoa pra pessoa, então use como referência (erro de 15 a 20%).</div></div></details></div>`}
+function cdSet(inp){cai=+$("#cat").value;const v=+$("#cmin").value;if(inp||true)cmin=v>0?v:0;const p=P();$("#cpv").innerHTML=cmin>0?`≈ <b>${ckc(p,cai,cmin)} kcal</b> em ${cmin} min`:"Informe os minutos.";document.querySelectorAll("#app .chp").forEach(b=>{if(b.getAttribute("onclick")&&b.getAttribute("onclick").startsWith("cdChip"))b.classList.toggle("on",b.textContent==String(cmin))})}
+function cdChip(m){$("#cmin").value=m;cdSet(1)}
+function addCd(){const id=pid(),p=P();if(!(cmin>0))return;const c=S.cardio[id]=S.cardio[id]||{},td=dk(new Date());(c[td]=c[td]||[]).push({n:ACT[cai][0].split(" (")[0],min:cmin,k:ckc(p,cai,cmin)});save();msg="";render()}
+function delCd(i){const c=(S.cardio[pid()]||{})[dk(new Date())];if(c){c.splice(i,1);save();render()}}
+function bars2(c,b,t,d,sb){const mx=Math.max(t*1.15,...c,...(sb?b:[0])),H=108,Y=x=>118-x/mx*H,ty=Y(t);
+ return `<svg viewBox="0 0 300 140" width="100%" role="img" aria-label="Calorias consumidas e gastas por dia"><line x1="0" x2="300" y1="${ty}" y2="${ty}" stroke="var(--mut)" stroke-dasharray="4 4"/>${c.map((x,i)=>{const X=i*42.5+6,bx=b[i];return `<rect x="${X}" y="${Y(x)}" width="${sb?15:26}" height="${x/mx*H}" rx="4" fill="${x>t?"var(--or)":"var(--ac)"}"/>${sb?`<rect x="${X+17}" y="${Y(bx)}" width="15" height="${bx/mx*H}" rx="4" fill="#14a37f"/>`:""}<text x="${X+(sb?16:13)}" y="134" text-anchor="middle" font-size="11" fill="var(--mut)">${new Date(d[i]+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"narrow"})}</text>`}).join("")}</svg>`}
+function tgA(){S.burnAdd=S.burnAdd===false;save();render()}
+function tgB(){S.burnOn=S.burnOn===false;save();render()}
+const LS=(id,nm)=>{const v=(S.last[id]||{})[nm];return v==null?[]:typeof v==="number"?[{w:v,r:0}]:(v.s||[])};
+const topR=r=>{const m=String(r).match(/\d+/g);return /s$/.test(String(r))||!m?0:Math.max(...m.map(Number))};
+const lowR=r=>{const m=String(r).match(/\d+/g);return /s$/.test(String(r))||!m?"":m[0]};
+const fmtS=a=>a.map(x=>(x.w?x.w+" kg":"sem carga")+(x.r?" × "+x.r:"")).join(", ");
+function exSets(e,i,id){const L=LS(id,e[0]),top=topR(e[2]);let h=`<div class="inp" style="display:block"><div class="sr h"><span></span><span>Carga (kg)</span><span>${/s$/.test(String(e[2]))?"Segundos":"Repetições"}</span><span style="text-align:center">Feito</span></div>`;
+ for(let j=0;j<e[1];j++){const q=L[j]||L[L.length-1]||{},pw=q.w?q.w:"",pr=q.r?q.r:lowR(e[2]);h+=`<div class="sr"><span class="n">${j+1}</span><input id="w${i}_${j}" type="number" inputmode="decimal" step="0.5" min="0" placeholder="${pw||"kg"}" aria-label="Carga da série ${j+1} de ${esc(e[0])}"><input id="r${i}_${j}" type="number" inputmode="numeric" min="0" placeholder="${pr||"reps"}" aria-label="Repetições da série ${j+1} de ${esc(e[0])}"><input id="d${i}_${j}" type="checkbox" onchange="sk(${i},${j})" aria-label="Série ${j+1} feita"></div>`}
+ if(L.length){const up=top&&L.length>=e[1]&&L.every(x=>x.r>=top&&x.w>0);h+=`<div class="hint">Última vez: <b>${fmtS(L)}</b>${up?`<br>Você bateu o topo das repetições em todas as séries. Tente subir a carga em 2 a 5%.`:""}</div>`}
+ return h+`</div>`}
+function sk(i,j){if(!$("#d"+i+"_"+j).checked)return;["w","r"].forEach(k=>{const f=$("#"+k+i+"_"+j);if(f&&f.value===""&&+f.placeholder>0)f.value=f.placeholder})}
+function fin(){const id=pid(),ex=plansFor(P()).P[plan][1],l=S.last[id]=S.last[id]||{},done=[],st=[],det=[],hist=S.wk[id]||[],pr=[];let vl=0;
+ ex.forEach((e,i)=>{const ss=[];for(let j=0;j<e[1];j++){if(!$("#d"+i+"_"+j).checked)continue;ss.push({w:+$("#w"+i+"_"+j).value||0,r:+$("#r"+i+"_"+j).value||0})}
+  if(!ss.length)return;done.push(e[0]);st.push(ss.length);det.push({n:e[0],s:ss});ss.forEach(x=>vl+=x.w*x.r);l[e[0]]={s:ss};
+  const mx=Math.max(...ss.map(x=>x.w)),pv=Math.max(0,...hist.flatMap(h=>(h.det||[]).filter(d=>d.n===e[0]).flatMap(d=>d.s.map(x=>x.w))));if(mx>0&&pv>0&&mx>pv)pr.push(e[0]+" "+mx+" kg")});
+ if(!done.length){msg="Marque ao menos uma série como feita para salvar o treino.";render();return}
+ const es=wkEst(P(),st.reduce((a,b)=>a+b,0));(S.wk[id]=S.wk[id]||[]).push({d:dk(new Date()),plan,n:done.length,ex:done,st,det,vl:R(vl),min:es.m,kc:es.k});save();
+ msg="Treino salvo: "+done.length+" de "+ex.length+" exercícios, "+st.reduce((a,b)=>a+b,0)+" séries"+(vl?", volume de "+R(vl).toLocaleString("pt-BR")+" kg":"")+". Gasto estimado: cerca de "+es.k+" kcal em "+es.m+" min."+(pr.length?" Novo recorde de carga: "+pr.join(", ")+".":"");render()}
+function vWelcome(){return `<div style="text-align:center;padding:36px 4px 8px"><div style="width:72px;height:72px;margin:0 auto 14px;border-radius:20px;background:var(--hero);color:#8fb0ff;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".3" stroke="#fff"/><path d="M12 3a9 9 0 0 1 9 9"/></svg></div><div class="num" style="font-size:44px;line-height:1">Gym<span style="color:var(--ac)">.cal</span></div><p class="mut" style="margin:8px 0 22px">Calorias, treino e progresso em um só lugar.</p></div>
+ <div class="card"><div class="sup"><b>Meta de calorias sob medida</b><div class="mut">Calculada pelo seu corpo, sua rotina e o ritmo de emagrecimento que você escolher.</div></div><div class="sup"><b>Treino montado pra sua rotina</b><div class="mut">De 2 a 6 dias por semana, com demonstração de cada exercício e os músculos trabalhados.</div></div><div class="sup"><b>Alimentos em medidas do dia a dia</b><div class="mut">Registre em colheres, fatias e unidades, sem balança.</div></div><div class="sup"><b>Progresso e sugestões</b><div class="mut">Peso, calorias gastas e dicas de alimentação com base no que você come.</div></div></div>
+ <button class="btn" onclick="S.seen=true;save();tab='perfil';render();scrollTo(0,0)">Começar</button><p class="mut" style="text-align:center">Seus dados ficam salvos neste aparelho. A conta na nuvem é opcional.</p>`}
+function render(){
+ if(!S.seen&&!S.people[0].set&&S.people.length===1){$("#hd").innerHTML="";$("#tabs").innerHTML="";$("#app").innerHTML=vWelcome();return}
+ $("#hd").innerHTML=`<div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M12 3a9 9 0 0 1 9 9"/></svg><div>Gym<span>.cal</span></div></div><div class="seg" role="group" aria-label="Pessoa">${S.people.map((p,i)=>`<button class="${i==S.act?"on":""}" onclick="sw(${i})">${esc(p.name)}</button>`).join("")}${S.people.length<4?'<button class="add" onclick="addP()" aria-label="Adicionar outra pessoa">+ Pessoa</button>':""}</div>`;
+ $("#tabs").innerHTML=TABS.map(([k,l])=>`<button data-t="${k}" class="${k===tab?"on":""}" ${k===tab?'aria-current="page"':""}><svg viewBox="0 0 24 24">${ICON[k]}</svg><span>${l}</span></button>`).join("");
+ $("#app").innerHTML=tab==="hoje"?vHoje():tab==="treino"?vTreino():tab==="prog"?vProg():tab==="guia"?vGuia():vPerfil();startAnim();if(tab==="hoje")fsearch();
+}
+function vHoje(){
+ const p=P(),c=calc(p),it=items(),sum=k=>R(it.reduce((a,x)=>a+(x[k]||0),0)),k=sum("k"),bk=burnDay(pid(),dayKey(),p),ub=S.burnAdd!==false&&bk>0,bh=R(bk/2),tg=c.t+(ub?bh:0),rest=tg-k,pct=Math.min(100,R(k/tg*100)),cop=wat(),gl=Math.ceil(p.w*35/250),gap=c.pr-sum("p");
+ let h=p.set?"":`<div class="note">Os valores abaixo são de exemplo. <a href="#" onclick="tab='perfil';render();scrollTo(0,0);return false" style="color:var(--ac);font-weight:600">Complete o perfil de ${esc(p.name)}</a> para calcular a meta.</div>`;
+ h+=`<div class="dn"><button class="ib" onclick="go(-1)" aria-label="Dia anterior">${chev("M15 6l-6 6 6 6")}</button><span>${dayLabel()}</span><button class="ib" onclick="go(1)" aria-label="Próximo dia" ${off===0?"disabled":""}>${chev("M9 6l6 6-6 6")}</button></div>`;
+ h+=`<div class="card hero"><div class="ring"><svg viewBox="0 0 120 120" width="100%" role="img" aria-label="Calorias do dia"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="9"/><circle cx="60" cy="60" r="52" fill="none" stroke="${rest<0?"#ffb26b":"#8fb0ff"}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${R(327*pct/100)} 327" transform="rotate(-90 60 60)"/></svg><div class="ctr"><div class="mut">${rest>=0?"restam":"acima da meta"}</div><div class="num big ${rest<0?"over":""}">${Math.abs(rest)}</div><div class="mut">kcal</div></div></div>
+ <div class="eq"><div><b>${c.t}</b><span class="mut">Meta</span></div><i>−</i><div><b>${k}</b><span class="mut">Comida</span></div>${bk>0?`<i>+</i><div class="${ub?"":"off"}"><b>${bh}</b><span class="mut">½ treino</span></div>`:""}<i>=</i><div><b>${rest}</b><span class="mut">Restam</span></div></div>${bk>0?`<button class="tl" onclick="tgA()">${ub?"Somando metade do gasto do treino ("+bk+" kcal). Toque pra não somar":"Treino não somado ("+bk+" kcal). Toque pra somar metade"}</button>`:""}
+ <div class="macs"><div><b>${sum("p")} g</b><span class="mut">Proteína</span>${mb(sum("p"),c.pr,"#8fb0ff")}<span class="mut">meta ${c.pr} g</span></div><div><b>${sum("c")} g</b><span class="mut">Carboidrato</span>${mb(sum("c"),c.ca,"#f2c46d")}<span class="mut">meta ${c.ca} g</span></div><div><b>${sum("f")} g</b><span class="mut">Gordura</span>${mb(sum("f"),c.fa,"#ef9fb3")}<span class="mut">meta ${c.fa} g</span></div></div></div>`;
+ if(p.set&&p.age>=18&&off===0&&k>0&&gap>=15){const n=Math.min(2,Math.ceil(gap/24));h+=`<div class="note">Faltam ${gap} g de proteína pra meta de hoje. Se a comida não completar, ${n===1?"1 dose":n+" doses"} de whey ajudam (1 dose ≈ 24 g).</div>`}
+ if(wDue(p))h+=wCard();
+ {const y=new Date(dayKey()+"T12:00:00");y.setDate(y.getDate()-1);const yl=((S.log[pid()]||{})[dk(y)]||[]);if(!items().length&&yl.length)h+=`<div class="card"><div class="row sp"><div><b>Repetir o dia anterior</b><div class="mut">${yl.length} itens, ${yl.reduce((a,x)=>a+x.k,0)} kcal</div></div><button class="btn s" style="margin:0;width:auto" onclick="rep1()">Copiar</button></div></div>`}
+ h+=`<div class="card"><div class="row sp"><div><b>Água</b><div class="mut">${cop} de ${gl} copos de 250 ml</div></div><div class="row"><button class="ib" onclick="dw(-1)" aria-label="Menos um copo">−</button><button class="ib pri" onclick="dw(1)" aria-label="Mais um copo">+</button></div></div><div class="bar"><i style="width:${Math.min(100,R(cop/gl*100))}%"></i></div></div>`;
+ h+=addCard();
+ h+="<h2>Diário</h2>";
+ if(!it.length)h+='<div class="card mut">Nada registrado ainda. Adicione o primeiro alimento acima.</div>';
+ else MEALS.forEach(m=>{const g=it.map((x,i)=>[x,i]).filter(a=>(a[0].m||"Lanche")===m);if(!g.length)return;h+=`<div class="card"><div class="row sp"><b>${m}</b><span class="mut">${g.reduce((a,b)=>a+b[0].k,0)} kcal</span></div>`+g.map(([x,i])=>`<div class="item"><span>${esc(x.n)}<br><span class="mut">${x.k} kcal · P ${x.p||0} · C ${x.c||0} · G ${x.f||0}</span></span><button class="x" onclick="del(${i})" aria-label="Remover ${esc(x.n)}">${XI}</button></div>`).join("")+"</div>"});
+ return h+'<p class="mut">Valores aproximados. Confira o rótulo quando tiver.</p>';
+}
+function lastDays(n){const a=[];for(let i=n-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(dk(d))}return a}
+function line(v){const mn=Math.min(...v)-.5,mx=Math.max(...v)+.5,X=i=>8+i*(284/(v.length-1)),Y=x=>112-(x-mn)/(mx-mn)*100;return `<svg viewBox="0 0 300 120" width="100%" role="img" aria-label="Gráfico de peso"><polyline fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${v.map((x,i)=>X(i)+","+Y(x)).join(" ")}"/>${v.map((x,i)=>`<circle cx="${X(i)}" cy="${Y(x)}" r="3.5" fill="var(--ac)"/>`).join("")}</svg>`}
+function vProg(){
+ const id=pid(),p=P(),c=calc(p),L=S.log[id]||{},days=lastDays(7),kc=days.map(d=>(L[d]||[]).reduce((a,x)=>a+x.k,0)),lg=kc.filter(x=>x>0),avg=lg.length?R(lg.reduce((a,b)=>a+b,0)/lg.length):0;
+ const W=S.wt[id]||{},wv=Object.keys(W).sort().slice(-30).map(d=>W[d]),dl=wv.length?wv[wv.length-1]-wv[0]:0,w7=recent(S.wk[id]||[]).length;
+ let h=`<div class="kv" style="margin-bottom:12px"><div><b>${avg||"–"}</b>Média diária (kcal)</div><div><b>${lg.length}/7</b>Dias registrados</div><div><b>${w7}</b>Treinos na semana</div><div><b>${wv.length>1?(dl>0?"+":"")+dl.toFixed(1):"–"}</b>Variação de peso (kg)</div></div>`;
+ h+=tipsCard()+wCard();
+ h+="<h2>Peso</h2><div class=\"card\">"+(wv.length>1?line(wv)+`<div class="mut">${wv[0]} kg → ${wv[wv.length-1]} kg nos últimos registros</div>`:'<span class="mut">Registre o peso em pelo menos 2 dias pra ver o gráfico.</span>')+"</div>";
+ if(p.goal&&p.goal>0){const ks=Object.keys(W).sort(),st=ks.length?W[ks[0]]:p.w,cur=ks.length?W[ks[ks.length-1]]:p.w,tot=Math.abs(st-p.goal),done=Math.abs(st-cur),dir=p.goal<st?cur<=st:cur>=st,pc=tot>0&&dir?Math.max(0,Math.min(100,R(done/tot*100))):0,left=Math.abs(cur-p.goal),wk=Math.max(0,(c.tdee-c.t)*7/7700);h+=`<h2>Meta de peso</h2><div class="card"><div class="row sp"><span><b>${cur} kg</b> <span class="mut">agora</span></span><span><b>${p.goal} kg</b> <span class="mut">meta</span></span></div><div class="bar" style="margin:10px 0"><i style="width:${pc}%"></i></div><div class="mut">${left<=0.1?"Meta atingida.":`Faltam ${r1(left)} kg. ${p.goal<cur&&wk>0?`No ritmo planejado (cerca de ${r1(wk)} kg por semana), isso leva uns ${Math.ceil(left/wk)} semanas.`:""}`}</div></div>`}
+ const bn=days.map(d=>burnDay(id,d,p)),sb=S.burnOn!==false,tb=bn.reduce((x,y)=>x+y,0),ab=R(tb/7);
+ h+=`<h2>Calorias da semana</h2><div class="card">${bars2(kc,bn,c.t,days,sb)}<div class="row" style="gap:14px;margin:6px 0 2px;flex-wrap:wrap"><span class="mut"><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--ac);margin-right:5px"></i>Consumidas</span>${sb?`<span class="mut"><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#14a37f;margin-right:5px"></i>Gastas treinando</span>`:""}<span class="mut">Tracejada: meta de ${c.t} kcal</span></div>${sb?`<div class="kv" style="margin-top:10px"><div><b>${avg||"–"}</b>Consumo médio (kcal)</div><div><b>${ab}</b>Gasto médio com treino (kcal)</div></div><div class="mut" style="margin-top:8px">Na tela Hoje, metade do gasto do dia é somada à meta de calorias (dá pra desligar lá). A meta já considera parte da sua atividade e as estimativas são aproximadas, por isso a soma é só de metade.</div>`:""}<button class="btn s" style="margin-top:10px" onclick="tgB()">${sb?"Ocultar gasto com treino":"Mostrar gasto com treino"}</button><div class="mut" style="margin-top:6px">Barras laranja de consumo passaram da meta.</div></div>`;
+ if(S.people.length>1)h+="<h2>Todos hoje</h2><div class=\"card\">"+S.people.map(q=>{const t=((S.log[q.id]||{})[dk(new Date())]||[]).reduce((a,x)=>a+x.k,0),n=recent(S.wk[q.id]||[]).length;return `<div class="row sp" style="padding:6px 0"><span><b>${esc(q.name)}</b><br><span class="mut">${n} treinos na semana</span></span><span><b>${t}</b> / ${calc(q).t} kcal</span></div>`}).join("")+"</div>";
+ return h;
+}
+function vGuia(){return '<h2 style="margin-top:4px">Guia fitness</h2>'+GUIA.map((x,i)=>`<details class="card"${i?"":" open"}><summary>${x[0]}</summary><div style="margin-top:10px">${x[1]}</div></details>`).join("")+'<p class="mut">Conteúdo educativo geral. Não substitui personal trainer, nutricionista ou médico.</p>'}
+function suppCard(p,c){
+ const agua=(p.w*.035).toFixed(1).replace(".",",");
+ if(p.age<18)return `<h2>Suplementos e hidratação</h2><div class="card"><p style="margin-top:0">Para menores de 18 anos o app não sugere doses de suplementos. Converse com um médico ou nutricionista. A base é comer bem, treinar com orientação e dormir bem.</p><div class="kv"><div><b>${agua} L</b>Água por dia</div><div><b>${c.pr} g</b>Proteína por dia, vinda da comida</div></div></div>`;
+ const cr=Math.min(5,Math.max(3,R(p.w*.05))),caf=Math.min(400,R(p.w*3/10)*10);
+ const rows=[["Proteína total",`${R(1.6*p.w)} a ${R(2.2*p.w)} g/dia`,`Sua meta no app é ${c.pr} g. Priorize a comida; o suplemento só completa.`],
+ ["Whey protein","0 a 2 doses/dia","1 dose de 30 g ≈ 24 g de proteína. Use só se não bater a meta de proteína com a comida."],
+ ["Creatina monohidratada",`${cr} g/dia`,"Todo dia, inclusive sem treino, sem fase de carga. Pode reter 1 a 2 kg de água, que não é gordura. Com problema renal, fale com o médico antes."],
+ ["Cafeína (opcional)",`até ${caf} mg`,"Cerca de 3 mg/kg, de 30 a 60 min antes do treino. Some o café do dia e fique abaixo de 400 mg/dia. Evite à noite."],
+ ["Ômega-3 (opcional)","250 a 500 mg/dia","De EPA + DHA, ou 2 porções de peixe gordo por semana."],
+ ["Água",`${agua} L/dia`,"Mais 500 a 750 ml por hora de treino."]];
+ return `<h2>Suplementos e hidratação</h2><div class="card">`+rows.map(r=>`<div class="sup"><div class="row sp"><b>${r[0]}</b><span class="num" style="font-size:22px;color:var(--ac)">${r[1]}</span></div><div class="mut">${r[2]}</div></div>`).join("")+`<p class="mut" style="margin-bottom:0">Vitamina D, ferro, magnésio e multivitamínico: só com exame e orientação profissional. BCAA, glutamina e termogênicos são dispensáveis se a alimentação estiver em dia.</p></div><p class="mut">Referências gerais para adultos saudáveis. Gestantes, pessoas com doença crônica ou que usam medicação devem falar com um médico antes. Não substitui nutricionista.</p>`}
+function bodyCard(p,c){const hm=p.h/100,imc=p.w/(hm*hm),cl=imc<18.5?"abaixo do peso":imc<25?"faixa saudável":imc<30?"sobrepeso":"obesidade",bf=1.2*imc+.23*p.age-10.8*(p.sex==="m"?1:0)-5.4,lean=p.w*(1-bf/100),def=Math.max(c.tdee-c.t,0),kgw=def*7/7700;let eta="";if(p.goal&&p.goal<p.w&&kgw>0)eta=`<div><b>~${Math.ceil((p.w-p.goal)/kgw)} sem.</b>Para chegar em ${p.goal} kg no ritmo estimado</div>`;
+ return `<h2>Seu corpo em números</h2><div class="card"><div class="kv"><div><b>${imc.toFixed(1)}</b>IMC · ${cl}</div><div><b>~${R(bf)}%</b>Gordura estimada · massa magra ~${R(lean)} kg</div><div><b>${c.bmr}</b>Metabolismo basal (kcal)</div><div><b>${(p.w*.035).toFixed(1)} L</b>Água por dia (35 ml por kg)</div><div><b>${R(18.5*hm*hm)}–${R(24.9*hm*hm)} kg</b>Faixa saudável (IMC 18,5 a 24,9)</div><div><b>~${kgw.toFixed(2)} kg</b>Perda por semana · déficit de ${R(def)} kcal/dia</div>${eta}</div>${kgw>p.w*.01?'<p class="mut">Ritmo alto: acima de 1% do peso por semana aumenta o risco de perder músculo.</p>':""}<p class="mut">A gordura é estimada pela fórmula de Deurenberg (IMC, idade e sexo) e pode errar vários pontos. Bioimpedância ou dobras cutâneas são mais precisas.</p></div>`}
+function sw(i){S.act=i;rmArm=false;save();render()}
+function addP(){if(S.people.length>=4)return;S.people.push(mk("Pessoa "+(S.people.length+1)));S.act=S.people.length-1;tab="perfil";rmArm=false;save();render();scrollTo(0,0)}
+function rmP(){if(S.act===0)return;if(!rmArm){rmArm=true;render();return}const id=pid();KEYS.forEach(k=>{delete S[k][id]});S.people.splice(S.act,1);S.act=0;rmArm=false;save();render()}
+function go(d){off=Math.min(0,off+d);render()}
+function pl(k){plan=k;render()}
+function push(x){lm=x.m;const l=S.log[pid()]=S.log[pid()]||{};(l[dayKey()]=l[dayKey()]||[]).push(x);save();render()}
+function rep1(){const y=new Date(dayKey()+"T12:00:00");y.setDate(y.getDate()-1);const yl=((S.log[pid()]||{})[dk(y)]||[]);if(!yl.length)return;const l=S.log[pid()]=S.log[pid()]||{};l[dayKey()]=yl.map(x=>Object.assign({},x));save();render()}
+function del(i){items().splice(i,1);save();render()}
+function dw(d){const w=S.water[pid()]=S.water[pid()]||{};w[dayKey()]=Math.max(0,wat()+d);save();render()}
+function addW(){const v=+$("#kg").value;if(!(v>25&&v<400))return;(S.wt[pid()]=S.wt[pid()]||{})[dk(new Date())]=v;P().w=v;save();render()}
+function rest(s){clearInterval(tmr);let t=s;const f=()=>{const e=$("#rt");if(e)e.textContent=t>0?Math.floor(t/60)+":"+String(t%60).padStart(2,"0"):"Pronto";if(t--<=0){clearInterval(tmr);try{navigator.vibrate&&navigator.vibrate(300)}catch(e){}}};f();tmr=setInterval(f,1000)}
+function expo(){$("#bk").value=JSON.stringify(S)}
+function impo(){try{const d=JSON.parse($("#bk").value);if(!d.people)throw 0;norm(d,false);save();render()}catch(e){$("#bk").value="Backup inválido. Cole o texto completo gerado pelo app."}}
+$("#tabs").onclick=e=>{const b=e.target.closest("button");if(b){tab=b.dataset.t;render();scrollTo(0,0)}};
+render();
+if(A)cPull(false);
+</script></body></html>
