@@ -241,6 +241,13 @@ details.gd{padding:0}details.gd>summary{padding:16px;min-height:60px;font-size:1
 .hz-n{font-size:56px;line-height:1.05;font-weight:600;letter-spacing:-.03em;min-width:0}.hz-n span{font-size:18px;font-weight:500;margin-left:6px;letter-spacing:0;color:#cfe0d5}.hz-n.over{color:#ffb26b}
 .hz .rg{position:relative;flex:none;width:76px;height:76px}.hz .rg svg{width:100%;height:100%}.hz .rg b{position:absolute;inset:0;display:grid;place-items:center;font-size:16px;font-weight:600}
 .hz-b{display:flex;gap:28px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.2)}.hz-b small{display:block;font-size:13px;color:#cfe0d5}.hz-b b{font-size:18px;font-weight:600}
+.sdo{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,18,14,.6)}
+.sdc{width:100%;max-width:380px;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:28px;padding:28px 22px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.sdh{width:112px;height:112px;margin:0 auto 14px;border-radius:36px;display:grid;place-items:center}
+.sdc h2{margin:0 0 6px;font-size:26px;line-height:1.15}
+.sdc p{margin:0 0 10px;color:var(--mut);font-size:16px;line-height:1.45}
+.sdc .swk{margin:14px 0 12px}
+.sdc .btn{margin-top:8px;width:100%}
 .hz-s{display:block;font-style:normal;font-size:12px;color:#c9d9cf;margin-top:2px}
 .hz-t{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:14px;color:#e3eee6}
 .hz-t button{min-height:44px;padding:0 14px;border-radius:99px;border:1px solid rgba(217,248,139,.6);background:transparent;color:#d9f88b;font:inherit;font-weight:600}
@@ -1712,6 +1719,23 @@ function impo(){try{const d=JSON.parse($("#bk").value);if(!Array.isArray(d.peopl
   cl.bkc=false;stash("Dados deste aparelho antes de restaurar um backup");norm(d,false);delete S.prem;if(!A&&(!SY||bu!==SY.uid)){SY=null;saveSY();try{localStorage.removeItem("gymcal_snap")}catch(e){}}save();render()}catch(e){$("#bk").value="Backup inválido. Cole o texto completo gerado pelo app."}}
 $("#tabs").onclick=e=>{const b=e.target.closest("button");if(b){tab=b.dataset.t;render();scrollTo(0,0)}};
 try{const d=JSON.parse(localStorage.getItem("gymcal_redraft")||"null");if(d&&Array.isArray(d.RE)&&d.RE.length){const ix=S.people.findIndex(p=>p.id===d.p);if(ix>=0){S.act=ix;RE=d.RE.filter(x=>x&&typeof x==="object"&&Array.isArray(x.ex)).slice(0,6);RE.forEach(D=>{if(!D.id)D.id=uid()});if(RE.length){reBase=d.b||"";reP=d.p;edRt=true;tab="treino"}else RE=null}}}catch(e){RE=null;edRt=false}
+function sdClose(){const o=document.getElementById("sdo");if(o)o.remove();document.removeEventListener("keydown",sdKey)}
+function sdKey(e){if(e.key==="Escape")sdClose()}
+function sdShow(){
+ if(navigator.webdriver&&!localStorage.getItem("gymcal_sdforce"))return;
+ const p=P();if(!p||!p.set||!S.seen||tab!=="hoje"||document.getElementById("sdo"))return;
+ const td=dk(new Date());let last="";try{last=localStorage.getItem("gymcal_sd")||""}catch(e){}
+ if(last===td)return;try{localStorage.setItem("gymcal_sd",td)}catch(e){}
+ const r=stkCalc(p.id),rk=gmRank(p,r.pts),rc=rk.r?rk.r[2]:"#ff7a2f",falta=Math.max(0,r.meta-r.now);
+ const tt=r.cur>0?`${r.cur} ${r.cur===1?"semana seguida":"semanas seguidas"}`:"Comece sua sequência";
+ const m1=r.cur>0?`Você vem cumprindo a meta de treinos semana após semana. Continue assim!`:`Cumpra sua meta de treinos nesta semana e comece uma sequência.`;
+ const m2=r.done?`Meta desta semana concluída. Sua sequência está garantida.`:`Faltam ${falta} ${falta===1?"treino":"treinos"} nesta semana pra manter o ritmo (${r.now} de ${r.meta}).`;
+ const o=document.createElement("div");o.id="sdo";o.className="sdo";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-labelledby","sdt");
+ o.innerHTML=`<div class="sdc"><div class="sdh" style="background:${rgba(rc,.18)};${r.cur?"":"border:2px dashed "+rgba(rc,.6)}">${dbl(72,true,rc)}</div><h2 id="sdt">${tt}</h2><p>${m1}</p><div class="swk" style="--rk:${rc};--rkb:${rgba(rc,.18)}" aria-label="Treinos desta semana">${r.days.map(([l,on,hj,fu])=>`<div class="${hj?"hj":""}${fu?" fut":""}"><span>${hj?"Hoje":l}</span><i class="${on?"on":""}">${on?dbl(20,true,rc):""}</i></div>`).join("")}</div><p>${m2}</p><p>Abra o Gym.cal todo dia, registre suas refeições e seus treinos. Pequenos passos mantêm a sequência viva.</p><button class="btn" id="sdok" onclick="sdClose()">Continuar</button></div>`;
+ o.addEventListener("click",e=>{if(e.target===o)sdClose()});
+ document.body.appendChild(o);document.addEventListener("keydown",sdKey);const b=document.getElementById("sdok");if(b)b.focus()}
+
 render();
+try{sdShow()}catch(e){}
 if(A)cPull(false);
 </script></body></html>
