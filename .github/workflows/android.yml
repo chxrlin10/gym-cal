@@ -1,29 +1,63 @@
 name: Android
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: Gerar AAB assinado (requer secrets)
+        type: boolean
+        default: false
   push:
-    paths: ["index.html", "termos.html", "privacidade.html", "capacitor.config.json", "package.json", "assets/**", ".github/workflows/android.yml"]
+    paths: ["*.html", "package*.json", "capacitor.config.json", "scripts/**", "tests/**", ".github/workflows/android.yml"]
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: {node-version: 22, cache: npm}
       - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: 17 }
-      - run: npm install
-      - name: Montar o app
+        with: {distribution: temurin, java-version: 21}
+      - run: npm ci
+      - run: npm test
+      - name: Preparar chave de assinatura
+        if: inputs.release == true
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          mkdir -p www && cp index.html privacidade.html excluir-conta.html termos.html www/
-          base64 -d assets/icon.b64 > assets/icon-only.png
-          npx cap add android
-          npx @capacitor/assets generate --android --assetPath assets --iconBackgroundColor "#245844" --iconBackgroundColorDark "#245844" --splashBackgroundColor "#f5f5f0" --splashBackgroundColorDark "#0f1713"
-          npx cap sync android
-      - name: Permissao da camera (leitor de codigo de barras)
-        run: sed -i 's#<application#<uses-permission android:name="android.permission.CAMERA" />\n    <application#' android/app/src/main/AndroidManifest.xml
+          test -n "$KEYSTORE"
+          printf '%s' "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/gymcal.jks"
+      - name: Montar Android
+        env:
+          RC_PUBLIC_KEY: ${{ vars.RC_PUBLIC_KEY }}
+          REQUIRE_BILLING: ${{ inputs.release == true && 'true' || 'false' }}
+          ANDROID_VERSION_CODE: ${{ github.run_number }}
+          ANDROID_KEYSTORE_PATH: ${{ inputs.release == true && format('{0}/gymcal.jks', runner.temp) || '' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          npm run android:prepare
       - name: APK de teste
+        if: inputs.release != true
         working-directory: android
         run: ./gradlew assembleDebug
+      - name: AAB de release
+        if: inputs.release == true
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/gymcal.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
       - uses: actions/upload-artifact@v4
-        with: { name: gym-cal-apk-teste, path: android/app/build/outputs/apk/debug/app-debug.apk }
+        with:
+          name: gymcal-android
+          path: |
+            android/app/build/outputs/apk/debug/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+      - name: Remover chave temporária
+        if: always()
+        run: rm -f "$RUNNER_TEMP/gymcal.jks"

@@ -1,1 +1,24 @@
-{"name":"gym-cal","version":"1.0.0","private":true,"dependencies":{"@capacitor/core":"^6.2.0","@capacitor/android":"^6.2.0","@revenuecat/purchases-capacitor":"9.2.2"},"devDependencies":{"@capacitor/cli":"^6.2.0","@capacitor/assets":"^3.0.5"}}
+{
+  "name": "gym-cal",
+  "version": "1.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node tests/app.test.cjs && node tests/server.test.cjs && node tests/database.test.cjs",
+    "build": "node scripts/build.mjs",
+    "android:prepare": "npm run build && node scripts/prepare-android.mjs",
+    "test:navegador": "python3 tests/navegador/premium_v79.py && python3 tests/navegador/assinatura.py && python3 tests/navegador/sequencia_e_limites.py"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/core": "8.6.0",
+    "@revenuecat/purchases-capacitor": "14.1.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.0",
+    "@electric-sql/pglite": "0.5.16",
+    "esbuild": "0.25.12"
+  }
+}

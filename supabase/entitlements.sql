@@ -1,0 +1,2 @@
+-- Superseded by migration.sql. Run the COMPLETE migration, not the old standalone table script.
+-- migration.sql configures user_data, entitlements, deletion tracking and the service-only reconciliation RPC.
