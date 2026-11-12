@@ -2,7 +2,7 @@ name: Android
 on:
   workflow_dispatch:
   push:
-    paths: ["index.html", "capacitor.config.json", "package.json", ".github/workflows/android.yml"]
+    paths: ["index.html", "termos.html", "privacidade.html", "capacitor.config.json", "package.json", "assets/**", ".github/workflows/android.yml"]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,7 +15,7 @@ jobs:
       - run: npm install
       - name: Montar o app
         run: |
-          mkdir -p www && cp index.html privacidade.html excluir-conta.html www/
+          mkdir -p www && cp index.html privacidade.html excluir-conta.html termos.html www/
           base64 -d assets/icon.b64 > assets/icon-only.png
           npx cap add android
           npx @capacitor/assets generate --android --assetPath assets --iconBackgroundColor "#245844" --iconBackgroundColorDark "#245844" --splashBackgroundColor "#f5f5f0" --splashBackgroundColorDark "#0f1713"
