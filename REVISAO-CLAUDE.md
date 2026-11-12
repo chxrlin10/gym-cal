@@ -1,3 +1,15 @@
+# Gym.cal v82 — 12/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v82).** Junta a v81 do Claude com o pacote "v81 — alimentos e busca" do ChatGPT, que tinha partido da "v80" dele e não tinha as correções v80.1/v81.
+
+## v82 (agora)
+- Catálogo com 951 alimentos: base anterior + 574 da Tabela TACO (Unicamp, 2011) + 5 espetinhos estimados. Valores conferidos por amostragem com a TACO e por coerência entre calorias e macros (nenhuma divergência).
+- Busca nova do ChatGPT (palavras em qualquer ordem, acentos, sinônimos como aipim/macaxeira, 20 resultados e "Mostrar mais").
+- **Corrigido:** a busca nova punha alimentos crus e itens raros no topo ("arroz" mostrava "Arroz carreteiro" e arroz cru antes do cozido; "ovo" mostrava ovo de codorna cru). Arroz cru tem quase 3× as calorias do cozido, então era fácil registrar errado. Agora vêm primeiro os alimentos que a pessoa já usou, depois o catálogo do dia a dia, depois a TACO; cru de grão, carne e feijão vai para baixo.
+- **Corrigido:** a linha de resultado da TACO sobrepunha o texto da fonte às calorias.
+- Textos encurtados: "Tabela TACO" na lista; ao escolher, uma linha com a fonte em vez de um bloco longo; medida "porção (≈ 100 g)".
+- Teste: `tests/navegador/busca_alimentos.py`.
+
 # Gym.cal v81 — 12/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v81).** Ele junta:

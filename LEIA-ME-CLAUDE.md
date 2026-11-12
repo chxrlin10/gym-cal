@@ -1,10 +1,16 @@
 # Gym.cal — histórico das versões do ChatGPT
 
-> Versão atual: **v81** (Claude, 12/11/2026). Leia primeiro `REVISAO-CLAUDE.md`.
-> Use SEMPRE o ZIP mais recente como base. O ZIP "v80 catálogo ampliado" do ChatGPT partiu da v79 e não tinha as correções v80.1 (dados antigos que travavam o app); a v81 junta as duas coisas.
+> Versão atual: **v82** (Claude, 12/11/2026). Leia primeiro `REVISAO-CLAUDE.md`.
+> **Use SEMPRE o ZIP mais recente que o Claude devolveu como base.** Os pacotes "v80" e "v81" do ChatGPT partiram de versões antigas e não tinham as correções do Claude (dados antigos que travavam o app, limites de carga, ajustes de tela). A v82 junta tudo.
 
-## Novidades "v80" do ChatGPT (catálogo ampliado), incorporadas na v81
+## "v81" do ChatGPT (alimentos e busca), incorporada na v82
+- Catálogo total 951 entradas: base antiga preservada + TACO com preparo/corte + 5 estimativas explícitas de espetinhos. Não são 951 ingredientes únicos; diferentes preparos contam separadamente.
+- 574 linhas da publicação foram extraídas com energia/macros completos. Deduplicação por nome normalizado contra a base existente. Consulte ALIMENTOS-FONTES.md para fonte, licença e limites.
+- Corrigida busca literal limitada a 8: palavras em qualquer ordem, prefixos, acentos e sinônimos de carne bovina/grelhados, aipim/macaxeira e pão de sal. 20 resultados por página e Mostrar mais.
+- Seleção de alimento TACO exibe fonte e preparo. Espetinhos não têm peso inventado por unidade: referência 100 g, para ajustar conforme peso comestível pronto, sem palito.
+- 51 testes locais passam; preparação Android funciona. Validação visual em aparelho real e implantação continuam pendentes.
 
+## "v80" do ChatGPT (16 exercícios), incorporada na v81 do Claude
 - 16 exercícios adicionais: supinos inclinado com barra, neutro e fechado; crucifixo inclinado; puxada supinada; remada baixa com barra; elevações lateral na polia e frontal com anilha; roscas inversa e na polia; tríceps unilateral na polia; extensora/flexoras unilaterais; terra romeno com halteres; agachamento no Smith.
 - Cada entrada tem músculos, equipamento, três passos, dica e esquema animado lateral no formato existente. As variantes compartilham geometria esquemática compatível; pegada, máquina e bilateralidade não são reproduções anatômicas detalhadas. Validar visualmente em Android.
 - Integradas ao editor, trocas por músculo e grupos de variação. Máquinas/polias ficam fora das trocas de casa e calistenia. Rotinas salvas e nomes anteriores preservados.
