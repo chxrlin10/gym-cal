@@ -984,7 +984,36 @@ function validateState(raw){
  if(!obj(v))fail();if(k!=="last")Object.keys(v).forEach(validDate);for(const x of Object.values(v)){if(k==="log"||k==="cardio"){if(!Array.isArray(x))fail();x.forEach(y=>{food(y);if(k==="cardio")number(y.min,0,300)})}else if(k==="wt"||k==="water")number(x);else if(typeof x==="number")number(x);else if(obj(x))sets(x.s);else fail();}}}
  if(d.custom!=null){if(!Array.isArray(d.custom))fail();d.custom.forEach(food)}return d;
 }
-function norm(d,old){if(!d||typeof d!=="object"||Array.isArray(d))return;d=validateState(d);Object.assign(S,d);
+/* Dados do próprio usuário gravados por versões antigas: corrige formatos simples antes de validar (número salvo como texto,
+   cardio acima de 300 min, peso fora da faixa, nome com aspas) em vez de bloquear o app. O que não der pra corrigir continua rejeitado. */
+function repairState(raw){
+ try{return validateState(raw)}catch(e){}
+ const d=JSON.parse(JSON.stringify(raw));if(!d||typeof d!=="object"||Array.isArray(d))return validateState(d);
+ const NUM=new Set(["k","p","c","f","g","fb","por","w","r","min","kc","vl","n","age","h","lvl","activityBase","def","days","exp","adj","sur","goal","yield","mi","j"]);
+ const val=(v,k,dp)=>{if(typeof v==="string"){if(k&&NUM.has(k)&&v.trim()!==""&&Number.isFinite(+v))return +v;return v.length>20000?v.slice(0,20000):v}
+  if(typeof v==="number"&&!Number.isFinite(v))return k&&NUM.has(k)?0:undefined;if(v&&typeof v==="object")return walk(v,dp+1);return v};
+ const walk=(x,dp)=>{if(dp>22)return Array.isArray(x)?[]:{};if(Array.isArray(x)){return x.map(v=>val(v,null,dp)).filter(v=>v!==undefined)}
+  const o={};for(const k of Object.keys(x)){if(["__proto__","constructor","prototype"].includes(k))continue;const k2=k.replace(/[<>"']/g,"")||"_";if(k2 in o)continue;const v=val(x[k],k,dp);if(v!==undefined)o[k2]=v}return o};
+ const z=walk(d,0),isO=x=>x&&typeof x==="object"&&!Array.isArray(x),okD=k=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&Number.isFinite(Date.parse(k+"T12:00:00"))&&k>="2000-01-01"&&k<="2100-12-31",
+  food=x=>isO(x)&&typeof x.n==="string"&&["k","p","c","f","g","fb","por"].every(k=>x[k]==null||(typeof x[k]==="number"&&x[k]>=0)),
+  sets=a=>(Array.isArray(a)?a:[]).filter(x=>isO(x)&&["w","r"].every(k=>x[k]==null||(typeof x[k]==="number"&&x[k]>=0)));
+ if(Array.isArray(z.people))z.people.forEach(p=>{if(!isO(p))return;
+  for(const [k,lo,hi] of [["age",0,120],["w",25,400],["h",80,250],["lvl",1,2.5],["activityBase",1,2.5],["def",0,40],["sur",0,20]])if(typeof p[k]==="number")p[k]=Math.min(hi,Math.max(lo,p[k]));
+  for(const k of ["days","exp","adj","goal"])if(p[k]!=null&&typeof p[k]!=="number")delete p[k];
+  if(Array.isArray(p.fav))p.fav=p.fav.filter(food);
+  if(Array.isArray(p.rt))p.rt.forEach(D=>{if(isO(D)&&Array.isArray(D.ex))D.ex=D.ex.filter(e=>Array.isArray(e)&&typeof e[0]==="string").map(e=>{e[1]=Math.min(8,Math.max(1,Math.round(+e[1])||3));if(typeof e[2]!=="string"&&typeof e[2]!=="number")e[2]=String(e[2]==null?"":e[2]);return e})})});
+ for(const k of ["log","cardio","wk","wt","water","last"]){if(z[k]==null)continue;if(!isO(z[k])){delete z[k];continue}
+  for(const id of Object.keys(z[k])){let v=z[k][id];
+   if(k==="wk"){z[k][id]=(Array.isArray(v)?v:[]).filter(x=>isO(x)&&typeof x.d==="string"&&okD(x.d)).map(x=>{for(const n of ["n","vl","min","kc"])if(x[n]!=null&&!(typeof x[n]==="number"&&x[n]>=0))delete x[n];if(x.st!=null)x.st=(Array.isArray(x.st)?x.st:[]).filter(n=>typeof n==="number"&&n>=0);if(x.ex!=null&&!Array.isArray(x.ex))delete x.ex;if(x.det!=null)x.det=(Array.isArray(x.det)?x.det:[]).filter(isO).map(y=>({...y,s:sets(y.s)}));return x});continue}
+   if(!isO(v)){delete z[k][id];continue}
+   for(const dk0 of Object.keys(v)){const x=v[dk0];
+    if(k!=="last"&&!okD(dk0)){delete v[dk0];continue}
+    if(k==="log"||k==="cardio"){const a=(Array.isArray(x)?x:[]).filter(food);if(k==="cardio")a.forEach(y=>{if(typeof y.min!=="number")y.min=0;y.min=Math.min(300,Math.max(0,y.min))});v[dk0]=a}
+    else if(k==="wt"||k==="water"){if(!(typeof x==="number"&&x>=0))delete v[dk0]}
+    else if(typeof x==="number"){if(!(x>=0))delete v[dk0]}else if(isO(x))x.s=sets(x.s);else delete v[dk0]}}}
+ if(z.custom!=null)z.custom=(Array.isArray(z.custom)?z.custom:[]).filter(food);
+ return validateState(z)}
+function norm(d,old,fix){if(!d||typeof d!=="object"||Array.isArray(d))return;d=fix==="loose"?JSON.parse(JSON.stringify(d)):fix?repairState(d):validateState(d);Object.assign(S,d);
  S.people=(Array.isArray(S.people)?S.people:[]).filter(p=>p&&typeof p==="object"&&!Array.isArray(p)).slice(0,4);if(!S.people.length)S.people=[mk("Pessoa 1")];
  const ids=new Set();S.people.forEach((p,i)=>{const b=mk("Pessoa "+(i+1));p.id=String(p.id||i);if(ids.has(p.id))p.id=uid();ids.add(p.id);
   if(typeof p.name!=="string"||!p.name.trim())p.name=b.name;p.name=p.name.slice(0,30);p.sex=p.sex==="f"?"f":"m";
@@ -993,7 +1022,7 @@ function norm(d,old){if(!d||typeof d!=="object"||Array.isArray(d))return;d=valid
  if(old)S.people=S.people.filter((p,i)=>i===0||p.set||KEYS.some(k=>S[k][p.id]&&Object.keys(S[k][p.id]).length));
  S.people.forEach(p=>{if(Array.isArray(p.rt))p.rt=p.rt.filter(D=>D&&typeof D==="object").slice(0,6);if(p.rt)p.rt.forEach(D=>{if(typeof D.id!=="string"||!D.id){D.id="r"+hsh(p.id+"|"+(p.rt.indexOf(D))+"|"+(D.n||D.name||""));rtFix=true}})});delete S.prem;
  S.act=Math.max(0,Math.min(Math.floor(+S.act)||0,S.people.length-1))}
-try{const r=localStorage.getItem("gymcal2");if(r){norm(JSON.parse(r),false);if(rtFix){rtFix=false;localStorage.setItem("gymcal2",JSON.stringify(S))}}}catch(e){loadError=true}
+try{const r=localStorage.getItem("gymcal2");if(r){const d0=JSON.parse(r);let fixed=false;try{validateState(d0)}catch(e){fixed=true}try{norm(d0,false,true)}catch(e){/* último recurso para dados deste aparelho: abre como as versões anteriores abriam */S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(d0,false,"loose")}if(fixed){try{if(!localStorage.getItem("gymcal2_copia"))localStorage.setItem("gymcal2_copia",r)}catch(x){}}if(rtFix||fixed){rtFix=false;localStorage.setItem("gymcal2",JSON.stringify(S))}}}catch(e){loadError=true}
 let lsErr=false;
 const save=q=>{if(!q)S.ts=Math.max(Date.now(),(S.ts||0)+1);try{localStorage.setItem("gymcal2",JSON.stringify(S));lsErr=false}catch(e){lsErr=true}if(!q&&typeof sched==="function")sched()};
 const SB={u:"https://ypudxlvlssvulbfuwdxu.supabase.co",k:"sb_publishable_8lwXX3J2acaOGPWx6Cz9Cg_pgCBWs24"};
@@ -1044,7 +1073,7 @@ async function cPush0(){if(!A||!cl.ready||cl.ask||cl.lock||!SY||SY.uid!==A.uid)t
  if(!live(u,e0))throw 0;if(!r.ok)throw 0;if(!Array.isArray(r.j)||!r.j.length)throw "conflict";SY={uid:u,base:r.j[0].updated_at};saveSY();snapSet(u,SY.base,str)}
 function cPush(){const u=A&&A.uid,e=EP;const p=Promise.resolve(cl.fl).then(()=>{if(!live(u,e))throw "stale";return cPush0()});cl.fl=p.catch(()=>{});return p}
 const cPushSafe=()=>cPush().catch(e=>e==="conflict"?cPull(0):Promise.reject(e));
-function applyRemote(d,ts){d=validateState(d);cl.remoteApplied=true;const raw=JSON.stringify(d);S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(d,false);S.ts=Date.parse(ts)||Date.now();save(true);SY={uid:A.uid,base:ts};saveSY();cl.ready=true;snapSet(A.uid,ts,raw);tab=S.people[0].set?"hoje":"perfil";plan=""}
+function applyRemote(d,ts){d=repairState(d);cl.remoteApplied=true;const raw=JSON.stringify(d);S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(d,false);S.ts=Date.parse(ts)||Date.now();save(true);SY={uid:A.uid,base:ts};saveSY();cl.ready=true;snapSet(A.uid,ts,raw);tab=S.people[0].set?"hoje":"perfil";plan=""}
 function renderKeep(){const m={},fa=document.activeElement&&document.activeElement.id;
  document.querySelectorAll("#app input[id],#app textarea[id],#app select[id]").forEach(e=>{if(!["hidden","password"].includes(e.type))m[e.id]={value:e.value,checked:e.checked}});
  render();for(const k in m){const e=document.getElementById(k);if(e){e.value=m[k].value;if(e.type==="checkbox"||e.type==="radio")e.checked=m[k].checked}}
@@ -1053,7 +1082,7 @@ function renderKeep(){const m={},fa=document.activeElement&&document.activeEleme
 let pullFlight=null;
 async function cPull(n=0,leaving=false){if(!A||cl.lock||(cl.outBusy&&!leaving))return;const u=A.uid,e=EP;if(pullFlight&&pullFlight.u===u&&pullFlight.e===e)return pullFlight.p;const job={u,e};job.p=cPull0(n);pullFlight=job;try{return await job.p}finally{if(pullFlight===job)pullFlight=null}}
 async function cPull0(n=0){if(!A||cl.lock)return;const u0=A.uid,e0=EP;cl.ready=false;cmsg("Sincronizando...");
- try{const r=await cGet();if(!live(u0,e0))return;if(r)validateState(r.data);const same=SY&&SY.uid===A.uid;cl.ask=null;cl.ready=!!same;
+ try{const r=await cGet();if(!live(u0,e0))return;if(r)r.data=repairState(r.data);const same=SY&&SY.uid===A.uid;cl.ask=null;cl.ready=!!same;
   if(SY&&!same&&hasData()){
    if(r){stash("Dados deste aparelho antes de entrar em outra conta");applyRemote(r.data,r.updated_at);cmsg("Esta conta é diferente da que estava neste aparelho. Carregamos só os dados dela. Os dados anteriores ficaram guardados no aparelho e não foram enviados.")}
    else cl.ask={other:true};
@@ -1451,7 +1480,7 @@ function hardReset(){resetAll()}
 function render(){try{render0()}catch(e){try{console.error(e)}catch(x){}let bk="";try{bk=JSON.stringify(S)}catch(x){}
  $("#tabs").innerHTML="";$("#hd").innerHTML="";$("#app").innerHTML=`<div class="card" style="margin-top:24px"><b>Algo deu errado ao abrir esta tela</b><p class="mut">Seus dados não foram apagados. Toque em Tentar de novo. Se continuar, copie o backup abaixo e guarde antes de recomeçar.</p><button class="btn" onclick="tab='hoje';edRt=false;render()">Tentar de novo</button><textarea rows="3" readonly aria-label="Backup dos seus dados">${esc(bk)}</textarea><button class="btn s" style="color:var(--or)" onclick="hardReset()">${rsArm?"Toque de novo para apagar e recomeçar":"Sair, limpar este aparelho e recomeçar"}</button></div>`}}
 function render0(){
- if(loadError){$("#tabs").innerHTML="";$("#hd").innerHTML="";$("#app").innerHTML='<div class="card"><b>Não consegui ler os dados salvos</b><p>Não alterei o original. Copie o conteúdo abaixo antes de recomeçar.</p><textarea id="recovery" rows="8" readonly aria-label="Dados originais"></textarea><button class="btn" onclick="hardReset()">'+(rsArm?'Confirmar limpeza local':'Limpar este aparelho e recomeçar')+'</button></div>';$("#recovery").value=localStorage.getItem("gymcal2")||"";return}
+ if(loadError){$("#tabs").innerHTML="";$("#hd").innerHTML="";$("#app").innerHTML='<div class="card"><b>Não consegui abrir seus dados</b><p>Eles continuam guardados neste aparelho. Copie o texto abaixo e guarde (ou envie ao suporte) antes de qualquer outra coisa.</p><textarea id="recovery" rows="8" readonly aria-label="Dados originais"></textarea><button class="btn" onclick="(async()=>{try{await navigator.clipboard.writeText($(\'#recovery\').value);this.textContent=\'Copiado ✓\'}catch(e){$(\'#recovery\').select()}})()">Copiar meus dados</button><details style="margin-top:12px"><summary class="mut">Apagar e começar do zero</summary><p class="mut">Só faça isso depois de copiar os dados. Não dá para desfazer.</p><button class="btn d" onclick="hardReset()">'+(rsArm?'Toque de novo para apagar tudo':'Apagar dados deste aparelho')+'</button></details></div>';$("#recovery").value=localStorage.getItem("gymcal2")||"";return}
  try{S.people.forEach(wkFreeze)}catch(e){}
  if(!S.seen&&!S.people[0].set&&S.people.length===1){$("#hd").innerHTML="";$("#tabs").innerHTML="";$("#tabs").hidden=true;$("#app").innerHTML=vWelcome();return}$("#tabs").hidden=false;
  $("#hd").innerHTML=`<div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M12 3a9 9 0 0 1 9 9"/></svg><div>Gym<span>.cal</span></div></div>${S.people.length>1?`<div class="seg" role="group" aria-label="Perfil">${S.people.map((p,i)=>`<button class="${i==S.act?"on":""}" onclick="sw(${i})">${esc(p.name)}</button>`).join("")}</div>`:""}`;
@@ -1865,7 +1894,7 @@ function dw(d){const w=S.water[pid()]=S.water[pid()]||{};w[dayKey()]=Math.max(0,
 function addW(){const v=+$("#kg").value;if(!(v>25&&v<400))return;(S.wt[pid()]=S.wt[pid()]||{})[dk(new Date())]=v;P().w=v;save();render()}
 function rest(s){clearInterval(tmr);let t=s;const f=()=>{const e=$("#rt");if(e)e.textContent=t>0?Math.floor(t/60)+":"+String(t%60).padStart(2,"0"):"Pronto";if(t--<=0){clearInterval(tmr);try{navigator.vibrate&&navigator.vibrate(300)}catch(e){}}};f();tmr=setInterval(f,1000)}
 function expo(){$("#bk").value=JSON.stringify(Object.assign({},S,{_bk:{uid:(A&&A.uid)||(SY&&SY.uid)||"",email:A?A.email:"",t:Date.now()}}))}
-function impo(){try{if($("#bk").value.length>10000000)throw 0;const d=JSON.parse($("#bk").value);validateState(d);if(!Array.isArray(d.people)||!d.people.length)throw 0;const bk=d._bk&&typeof d._bk==="object"?d._bk:null,bu=bk&&typeof bk.uid==="string"?bk.uid:"";delete d._bk;
+function impo(){try{if($("#bk").value.length>10000000)throw 0;let d=JSON.parse($("#bk").value);d=repairState(d);if(!Array.isArray(d.people)||!d.people.length)throw 0;const bk=d._bk&&typeof d._bk==="object"?d._bk:null,bu=bk&&typeof bk.uid==="string"?bk.uid:"";delete d._bk;
   if(A){if(bu&&bu!==A.uid){$("#bk").value="Este backup é de outra conta. Para não enviar dados de uma pessoa para a conta de outra, saia da conta antes de restaurá-lo.";return}if(!bu&&!cl.bkc){cl.bkc=true;$("#bk").value=JSON.stringify(Object.assign({},d,{_bk:{uid:""}}));cmsg("Este backup não diz de qual conta é. Ao restaurar, ele será enviado para a conta atual. Toque em Restaurar de novo para confirmar.");renderKeep();return}}
   cl.bkc=false;stash("Dados deste aparelho antes de restaurar um backup");S={};norm(d,false);delete S.prem;if(!A&&(!SY||bu!==SY.uid)){SY=null;saveSY();try{localStorage.removeItem("gymcal_snap")}catch(e){}}save();render()}catch(e){$("#bk").value="Backup inválido. Cole o texto completo gerado pelo app."}}
 $("#tabs").onclick=e=>{const b=e.target.closest("button");if(b){tab=b.dataset.t;render();scrollTo(0,0)}};
