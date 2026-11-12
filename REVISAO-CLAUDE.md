@@ -1,6 +1,25 @@
+# Gym.cal v81 — 12/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v81).** Ele junta:
+- a v80 do Claude (revisão da v79 + ajustes de uso no celular),
+- a v80.1 (correção de dados antigos que travavam o app),
+- os 16 exercícios novos do ZIP "v80 catálogo ampliado" do ChatGPT, que tinha partido da v79 e não tinha a v80.1.
+
+## v81 (agora)
+- 16 exercícios novos do ChatGPT aplicados sobre a v80.1, sem perder nenhuma correção anterior. Testes do ChatGPT para eles incluídos (28 testes de front).
+- Carga e repetições das séries limitadas a 0–1000 kg e 0–200 reps ao concluir o treino. Antes, um número absurdo ou negativo digitado gerava dados que o app novo recusava ao abrir e que travavam a sincronização.
+- Meta de peso fora de 25–400 kg é ignorada ao salvar o Perfil.
+- O conserto automático de dados antigos agora também cobre números acima de 1 bilhão e meta de peso negativa.
+
+## v80.1
+- A v80 recusava dados salvos por versões anteriores fora do formato novo (ex.: cardio acima de 300 min, número salvo como texto) e mostrava "Não consegui ler os dados", com o botão de apagar como ação principal. Um usuário perdeu os dados locais assim.
+- Agora o app corrige esses formatos ao abrir, guarda o original em `gymcal2_copia` e, em último caso, abre como as versões anteriores. A mesma correção vale para dados vindos da nuvem e de backups antigos; backups maliciosos continuam recusados.
+- A tela de erro mostra "Copiar meus dados" e esconde o apagar dentro de "Apagar e começar do zero".
+- Teste: `tests/navegador/dados_antigos.py`.
+
 # Gym.cal v80 — revisão do Claude sobre a v79 (12/11/2026)
 
-Base: o ZIP v79. Nada foi publicado (GitHub, site ou app) e a cobrança continua desligada (`RC_KEY=""`).
+Base: o ZIP v79. Naquela etapa nada foi publicado; a cobrança continua desligada (`RC_KEY=""`).
 
 ## O que foi corrigido
 1. **Minhas refeições** fechava o painel ao registrar ou ao tocar em remover; a confirmação de remoção ficava escondida. Agora o painel continua aberto e mostra "1 porção registrada em Jantar ✓".

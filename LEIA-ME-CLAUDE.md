@@ -1,8 +1,15 @@
-# Gym.cal v79 — Premium de uso diário, 12/11/2026
+# Gym.cal — histórico das versões do ChatGPT
 
-> v80: veja primeiro `REVISAO-CLAUDE.md` (correções da revisão, o que foi testado e o que falta).
+> Versão atual: **v81** (Claude, 12/11/2026). Leia primeiro `REVISAO-CLAUDE.md`.
+> Use SEMPRE o ZIP mais recente como base. O ZIP "v80 catálogo ampliado" do ChatGPT partiu da v79 e não tinha as correções v80.1 (dados antigos que travavam o app); a v81 junta as duas coisas.
 
-Charles: envie ESTE ZIP inteiro ao Claude. O index.html dentro deste pacote é a nova fonte do app. Não misture com o index antigo nem publique só o HTML deixando as funções antigas.
+## Novidades "v80" do ChatGPT (catálogo ampliado), incorporadas na v81
+
+- 16 exercícios adicionais: supinos inclinado com barra, neutro e fechado; crucifixo inclinado; puxada supinada; remada baixa com barra; elevações lateral na polia e frontal com anilha; roscas inversa e na polia; tríceps unilateral na polia; extensora/flexoras unilaterais; terra romeno com halteres; agachamento no Smith.
+- Cada entrada tem músculos, equipamento, três passos, dica e esquema animado lateral no formato existente. As variantes compartilham geometria esquemática compatível; pegada, máquina e bilateralidade não são reproduções anatômicas detalhadas. Validar visualmente em Android.
+- Integradas ao editor, trocas por músculo e grupos de variação. Máquinas/polias ficam fora das trocas de casa e calistenia. Rotinas salvas e nomes anteriores preservados.
+- Referências gerais consultadas: https://www.nasm.org/workout-exercise-guidance e https://www.acefitness.org/resources/everyone/exercise-library/equipment/ . Textos próprios; não são endosso ou certificação.
+- Testes incluem renderização das 16 rotinas, coordenadas finitas e filtros de ambiente.
 
 ## Novidades v79
 - Minhas refeições: salve uma combinação registrada no diário, nome e rendimento. Adicione frações/múltiplos de porção em qualquer refeição e na data selecionada. Ingredientes e macros são snapshots, preservando o registro original. Limite de 60 combinações por perfil.

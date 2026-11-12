@@ -13,7 +13,7 @@ with sync_playwright() as p:
     cases=[("peso 20","d.people[0].w=20"),("kcal como texto","d.log[d.people[0].id][Object.keys(d.log[d.people[0].id])[0]][0].k='350'"),
       ("exercício com aspas","d.last[d.people[0].id]={\"Farmer's walk\":{s:[{w:10,r:10}]}}"),("cardio 400 min","d.cardio[d.people[0].id]={[Object.keys(d.log[d.people[0].id])[0]]:[{n:'Corrida',min:400,k:900}]}"),
       ("peso salvo como texto","d.wt[d.people[0].id][Object.keys(d.wt[d.people[0].id])[0]]='77.5'"),("série com 10 séries","d.people[0].rt=[{id:'r1',n:'A',ex:[['Supino reto',10,'8-10']]}]"),
-      ("idade como texto","d.people[0].age='28'"),("data inválida","(d.water[d.people[0].id]=d.water[d.people[0].id]||{})['ontem']=3"),("NaN no treino","d.wk[d.people[0].id][0].vl=null;d.wk[d.people[0].id][0].min='abc'")]
+      ("idade como texto","d.people[0].age='28'"),("data inválida","(d.water[d.people[0].id]=d.water[d.people[0].id]||{})['ontem']=3"),("carga absurda","d.wk[d.people[0].id][0].vl=1e10;d.wk[d.people[0].id][0].det=[{n:'Supino reto',s:[{w:-5,r:10},{w:1e9,r:10}]}]"),("meta de peso negativa","d.people[0].goal=-70"),("NaN no treino","d.wk[d.people[0].id][0].vl=null;d.wk[d.people[0].id][0].min='abc'")]
     for name,mut in cases:
         raw=pg.evaluate("s=>{const d=JSON.parse(s);%s;const r=JSON.stringify(d);localStorage.clear();localStorage.setItem('gymcal2',r);return r}"%mut,base)
         pg.reload();pg.wait_for_timeout(600)
