@@ -18,7 +18,7 @@ jobs:
           mkdir -p www && cp index.html privacidade.html excluir-conta.html www/
           base64 -d assets/icon.b64 > assets/icon-only.png
           npx cap add android
-          npx @capacitor/assets generate --android --assetPath assets --iconBackgroundColor "#0e1b3d" --iconBackgroundColorDark "#0e1b3d"
+          npx @capacitor/assets generate --android --assetPath assets --iconBackgroundColor "#245844" --iconBackgroundColorDark "#245844" --splashBackgroundColor "#f5f5f0" --splashBackgroundColorDark "#0f1713"
           npx cap sync android
       - name: Permissao da camera (leitor de codigo de barras)
         run: sed -i 's#<application#<uses-permission android:name="android.permission.CAMERA" />\n    <application#' android/app/src/main/AndroidManifest.xml
