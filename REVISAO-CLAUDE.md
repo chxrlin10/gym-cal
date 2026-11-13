@@ -1,3 +1,22 @@
+# Gym.cal v88 (1.0.9) — 13/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v88).** Pedido do Charles: um jeito de treinar para quem quer afinar e firmar, com mais pernas e glúteo.
+
+- Novo campo no Perfil › Preferências de treino (e no primeiro cadastro): **Foco do treino**, com "Corpo todo por igual" (padrão, como antes) ou "Mais pernas e glúteo". **Grátis**.
+- Com "Mais pernas e glúteo", o plano automático passa a ter mais dias e exercícios de inferiores, sem largar a parte de cima:
+  - 2 dias: dois corpo inteiro puxados para pernas e glúteo;
+  - 3 dias: Pernas e glúteo · Superior · Glúteo e posterior;
+  - 4 dias: + Corpo inteiro;
+  - 5 dias: Pernas e glúteo · Superior A · Glúteo e posterior · Superior B · Glúteo e quadríceps;
+  - 6 dias: + Corpo inteiro.
+- Versões para academia, condomínio/casa e calistenia, só com exercícios que servem para o local e que já existem no catálogo (sem exercício novo).
+- Na academia, a parte de inferiores sobe de 19–38% para 49–56% das séries e a de glúteo de 13–19% para 33–41%, conforme os dias.
+- O foco vale no estilo Automático. Com um estilo Premium escolhido (Push/Pull/Legs etc.), os treinos seguem o estilo e o app avisa. "Minha rotina" continua tendo prioridade.
+- Trocar o foco recomeça a sequência do primeiro treino. O sexo da pessoa não muda o treino; o foco é escolha dela.
+- Nada mudou em calorias, pontos, rank ou sincronização. Tabela grátis × Premium ganhou a linha "Foco em pernas e glúteo".
+- Teste novo: `tests/navegador/foco_treino.py` (4 locais × 5 dias, exercícios válidos e sem repetir no mesmo treino, mais volume de inferiores e glúteo, tela, estilo Premium, Minha rotina, voltar ao padrão, validação, combinação entre aparelhos, primeiro cadastro).
+- Testado: `npm test`, todos os testes de navegador com `FALHAS: []`, bateria de 30 testes (só o `t4` desatualizado falha), 7 rodadas de toques aleatórios sem erro, dados das versões v41, v60, v77 e v87 abrindo com o diário idêntico, layout 320/390/1280 claro e escuro sem rolagem lateral, contraste.
+
 # Gym.cal v87 (1.0.8) — 13/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v87).** Pedido do Charles: o sorteio de exercício não agregava.
