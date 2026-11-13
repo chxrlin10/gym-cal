@@ -1,3 +1,12 @@
+# Gym.cal v87 (1.0.8) — 13/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v87).** Pedido do Charles: o sorteio de exercício não agregava.
+- Saiu o botão "Sortear outro" (e o limite de 3 sorteios por dia). Fica só "Escolher outro", que continua Premium e mostra a lista de exercícios do mesmo músculo.
+- Trocas já feitas por sorteio continuam valendo e podem ser desfeitas em "Desfazer", como antes.
+- Removido também código de botões em ícone que não era usado em nenhuma tela.
+- Nada mais mudou. O campo antigo de contagem de sorteios pode continuar nos dados salvos e é ignorado.
+- Testado: `npm test`, todos os testes de navegador com `FALHAS: []` (o de cadastro agora também escolhe outro exercício pela lista e desfaz), bateria de 30 testes (só o `t4` desatualizado falha; o `t47`, que testava o limite de sorteios, saiu; o `t46` agora troca pela lista), 7 rodadas de toques aleatórios sem erro, dados das versões v41, v60, v77 e v86 abrindo com o diário idêntico, layout e contraste.
+
 # Gym.cal v86 (1.0.7) — 13/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v86).** Ajustes de clareza para quem nunca usou o app, depois de percorrer o app como iniciante. Nenhuma regra, cálculo, ponto, rank, sincronização ou divisão Free/Premium mudou.

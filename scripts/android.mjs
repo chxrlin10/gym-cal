@@ -10,7 +10,7 @@ await writeFile(manifest,m);
 await writeFile('android/app/src/main/res/xml/data_extraction_rules.xml','<data-extraction-rules><cloud-backup><exclude domain="root" path="."/></cloud-backup><device-transfer><exclude domain="root" path="."/></device-transfer></data-extraction-rules>');
 let v=await readFile('android/variables.gradle','utf8');v=v.replace(/targetSdkVersion\s*=\s*\d+/,'targetSdkVersion = 36').replace(/compileSdkVersion\s*=\s*\d+/,'compileSdkVersion = 36');await writeFile('android/variables.gradle',v);
 const code=process.env.ANDROID_VERSION_CODE||'2';if(!/^\d+$/.test(code))throw Error('Invalid version code');
-let g=await readFile('android/app/build.gradle','utf8');g=g.replace(/versionCode \d+/,`versionCode ${code}`).replace(/versionName "[^"]+"/,'versionName "1.0.7"');
+let g=await readFile('android/app/build.gradle','utf8');g=g.replace(/versionCode \d+/,`versionCode ${code}`).replace(/versionName "[^"]+"/,'versionName "1.0.8"');
 g=g.replace(/\n\/\/ GYMCAL_SIGNING_START[\s\S]*?\/\/ GYMCAL_SIGNING_END\n/g,'');
 if(process.env.ANDROID_KEYSTORE_PATH){g+=`\n// GYMCAL_SIGNING_START\nandroid {\n signingConfigs { release {\n storeFile file(System.getenv('ANDROID_KEYSTORE_PATH'))\n storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')\n keyAlias System.getenv('ANDROID_KEY_ALIAS')\n keyPassword System.getenv('ANDROID_KEY_PASSWORD')\n } }\n buildTypes { release { signingConfig signingConfigs.release } }\n}\n// GYMCAL_SIGNING_END\n`;}
 await writeFile('android/app/build.gradle',g);
