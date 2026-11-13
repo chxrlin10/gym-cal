@@ -1,3 +1,18 @@
+# Gym.cal v84 — 13/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v84).** Integra a proposta `ALTERACOES-UX-V84-PROPOSTA.md` (feita sobre a v83) depois de comparar o código item a item. Só a aba Hoje mudou; nenhuma regra, cálculo, treino, alimentação, ponto, rank ou sincronização.
+
+| Proposta | Decisão | Motivo |
+|---|---|---|
+| Card "Seu treino de hoje" logo depois dos macros | **Mantido** | Acha o treino sem rolar as refeições. |
+| Botão de alimento antes da lista, 52 px | **Ajustado** | Ficou logo abaixo do título "Refeições" (na proposta vinha acima do título). Texto "Registrar alimento" com ícone de + desenhado, em vez do caractere "+". Abre a refeição do horário, como antes. |
+| Foco visível (teclado) no botão, no card de treino e no resumo da semana | **Mantido** | Acessibilidade. |
+| Resumo "X de Y treinos nesta semana · rank" dentro de seção fechada | **Rejeitado** | A seção fechada ocupa a mesma linha que o resumo e esconde a informação atrás de mais um toque. O layout aprovado pede esse resumo discreto e visível. |
+| Convite "Guarde seus dados na nuvem" dentro de seção fechada | **Rejeitado** | É o que protege contra perder dados (já aconteceu com usuário sem conta). Continua no fim da tela e some por 7 dias com "Agora não". |
+| `.trhero .wk` com fonte 13 px em telas até 430 px | **Rejeitado** | Não havia corte nessas larguras; reduzir fonte piora a leitura. |
+
+Teste novo: `tests/navegador/hoje_v84.py` (ordem dos blocos, refeição certa por horário 8h/12h/16h/21h, registro em "Ontem", card de treino, convite e resumo visíveis, foco pelo teclado).
+
 # Gym.cal v83 — 13/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v83).**
