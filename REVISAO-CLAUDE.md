@@ -27,7 +27,7 @@
 - Dados salvos pelas versões v41, v51, v60, v67, v70, v77 e v84 abrem na v85 sem a tela de erro e com o diário idêntico.
 - Login em aparelho limpo traz os dados da nuvem; layout em 320, 390 e 1280 px, claro e escuro, sem rolagem lateral; contraste conferido.
 - Dados corrompidos de propósito: 9 de 11 casos abrem consertados. Os outros 2 já eram assim desde a v81 e **nenhuma versão do app grava dados nesse formato** (perfil sem `id`; rotina salva como texto). No primeiro, o diário fica guardado mas não aparece; no segundo, abre a tela de recuperação com o original intacto. Não mexi nisso agora para não arriscar a abertura de dados reais.
-- Compilação Android: GitHub Actions, depois do envio desta versão.
+- Compilação Android no GitHub Actions com o código da v85: `npm ci`, `npm test`, montagem do projeto Android e APK de teste passaram (artefato `gymcal-android`). O APK não foi aberto em celular.
 
 ## Conflitos que continuam (investigados, sem migração)
 A combinação de dois aparelhos compara registros pelo **conteúdo** (não há ID por refeição/treino). Com a cópia de base, isso resolve corretamente: alterações diferentes, apagar num e registrar no outro, e o mesmo alimento registrado duas vezes. Ficam três limitações, todas sem perda de dados:
