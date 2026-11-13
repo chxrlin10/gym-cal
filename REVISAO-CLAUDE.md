@@ -1,3 +1,16 @@
+# Gym.cal v83 — 13/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v83).**
+
+## Estilo de divisão do treino (novo)
+- No Perfil › Preferências de treino, campo "Estilo de divisão": Automático (pelos dias, como antes), Corpo inteiro, Superior / Inferior, Push / Pull / Legs, ABCDE (um grupo por dia), Arnold (peito e costas / ombros e braços / pernas) e Superior / Inferior / Corpo inteiro.
+- **Grátis:** Automático, que já monta corpo inteiro, superior/inferior, ABCDE ou Push/Pull/Legs conforme os dias. **Premium:** escolher o estilo, independente dos dias. No grátis, os outros estilos aparecem com ★ e um convite, sem sair da tela.
+- Os dias por semana viram só a frequência; o app roda a sequência do estilo e, ao trocar de estilo, recomeça do primeiro dia.
+- Versões para academia, condomínio, casa e calistenia, só com exercícios que servem para o local. "Minha rotina" continua tendo prioridade.
+- Se o Premium vencer, volta ao Automático; o estilo fica guardado e volta se assinar de novo.
+- Sequência, pontos, rank e cálculo de calorias não mudam.
+- Teste: `tests/navegador/estilos_treino.py`.
+
 # Gym.cal v82 — 12/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v82).** Junta a v81 do Claude com o pacote "v81 — alimentos e busca" do ChatGPT, que tinha partido da "v80" dele e não tinha as correções v80.1/v81.
