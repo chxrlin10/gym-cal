@@ -1,3 +1,23 @@
+# Gym.cal v86 (1.0.7) — 13/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v86).** Ajustes de clareza para quem nunca usou o app, depois de percorrer o app como iniciante. Nenhuma regra, cálculo, ponto, rank, sincronização ou divisão Free/Premium mudou.
+
+| Problema encontrado | O que mudou |
+|---|---|
+| Primeiro cadastro com 3 botões "Salvar e calcular"; o primeiro ficava antes do objetivo. Quem tocava nele salvava "Emagrecer, 3 dias, Intermediário, sentado" sem escolher | No primeiro cadastro há um botão só, depois de todas as perguntas, sem "Cancelar". Depois de salvo, o Perfil volta a ter um botão por seção, como antes |
+| Idade, peso e altura já vinham com 30, 80 e 175 | Começam vazios com exemplo cinza; vazio mostra "Preencha a idade." (ou peso, altura) |
+| Objetivo vinha marcado em "Emagrecer" | No primeiro cadastro vem "Escolha seu objetivo" e o app pede a escolha antes de salvar |
+| A meta aparecia antes dos dados (calculada com os valores padrão) | A meta só aparece depois de salvar |
+| Botões "Treino A / B / C" sem explicação | Linha embaixo: "Sequência de N treinos: o app segue a ordem e continua na semana seguinte." |
+| Campo de carga vazio sem orientação | No primeiro registro de cada exercício: "escolha um peso que dê pra fazer todas as repetições sobrando umas 2". Vale para grátis e Premium, aparece uma vez e some depois do primeiro registro |
+| "Trocar" e "Sortear (3)" | "Escolher outro" e "Sortear outro (restam 3)". Continuam Premium, como antes |
+
+Teste novo: `tests/navegador/cadastro_e_treino.py` (botão único, campos vazios, objetivo obrigatório no primeiro cadastro, Perfil igual ao de antes depois de salvo, textos do Treino no grátis e no Premium).
+
+Testado aqui: `npm test` (32 + 10 + 9), todos os testes de navegador com `FALHAS: []` (incluindo `falhas_sync.py`), bateria de 31 testes (só o `t4` desatualizado falha; o `t58` falhou uma vez rodando em paralelo e passou sozinho), 7 rodadas de toques aleatórios sem erro, dados das versões v41 a v85 abrindo com o diário idêntico, layout 320/390/1280 claro e escuro sem rolagem lateral, contraste. Dois testes antigos foram atualizados para os textos novos (`t9` escolhe o objetivo; `t58` procura "Escolher outro").
+
+Não mudou (fica para os testadores dizerem): os dois jeitos de registrar treino na aba Hoje ("Seu treino de hoje" e "Marcar treino") e a falta de explicação de como ganhar pontos na tela do rank.
+
 # Gym.cal v85 (1.0.6) — 13/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v85).** Integra o pacote "v84-corrigido" do ChatGPT (correções de segurança de dados, descritas em `CORRECOES-SEGURANCA-V84.md`). Ele partiu da v84 certa, então nada posterior foi perdido. Nenhuma funcionalidade nova, nenhuma tela nova; Free e Premium iguais à v84.

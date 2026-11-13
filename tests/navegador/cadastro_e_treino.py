@@ -1,0 +1,34 @@
+# Primeiro cadastro (um botão só, campos vazios, objetivo escolhido) e textos de ajuda do Treino.
+import sys,os;sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from comum import URL,lancar
+from playwright.sync_api import sync_playwright
+F=[]
+def A(c,m):
+    print(("OK   " if c else "FAIL ")+m)
+    if not c:F.append(m)
+with sync_playwright() as p:
+    b=lancar(p);pg=b.new_page(viewport={"width":390,"height":844});errs=[];pg.on("pageerror",lambda e:errs.append(str(e)))
+    pg.goto(URL);pg.wait_for_timeout(300);pg.click("text=Começar");pg.wait_for_timeout(300)
+    salvar=pg.locator("button:has-text('Salvar e calcular')")
+    A(salvar.count()==1 and pg.locator("button:has-text('Cancelar')").count()==0,"primeiro cadastro: um botão Salvar e calcular, sem Cancelar")
+    A(salvar.bounding_box()["y"]>pg.locator("#pactivity").bounding_box()["y"],"o botão fica depois de todas as perguntas")
+    A(pg.input_value("#pa")=="" and pg.input_value("#pw")=="" and pg.input_value("#ph")=="","idade, peso e altura começam vazios")
+    A(pg.input_value("#pobj")=="" and pg.locator("text=Meta diária").count()==0,"objetivo sem escolha e sem meta antes de salvar")
+    salvar.click();pg.wait_for_timeout(150);A("Preencha a idade" in pg.inner_text("#perr") and not pg.evaluate("P().set"),"vazio: pede a idade e não salva")
+    pg.fill("#pn","Lucas");pg.fill("#pa","23");pg.fill("#pw","77");pg.fill("#ph","172");salvar.click();pg.wait_for_timeout(150)
+    A("Escolha seu objetivo" in pg.inner_text("#perr") and not pg.evaluate("P().set"),"sem objetivo: pede para escolher e não salva")
+    pg.select_option("#pobj","bulk");A(pg.is_visible("#psu"),"ao escolher ganhar massa aparece o ritmo de ganho")
+    pg.select_option("#pexp","0");salvar.click();pg.wait_for_timeout(400);pg.evaluate("document.getElementById('sdo')&&sdClose()")
+    A(pg.evaluate("[P().set,P().obj,P().age,P().w,P().h,P().exp,tab]")==[True,"bulk",23,77,172,0,"hoje"],"salva o que a pessoa escolheu e vai para Hoje")
+    pg.evaluate("tab='perfil';render()");A(pg.locator("button:has-text('Salvar e calcular')").count()==3 and pg.locator("text=Meta diária").count()==1,"depois do cadastro: um botão por seção e a meta aparecem como antes")
+    pg.evaluate("PFO.dados=true;render()");pg.fill("#pa","");pg.locator(".spn:not([hidden]) >> text=Salvar e calcular").first.click();pg.wait_for_timeout(150)
+    A(pg.evaluate("P().age")==23,"editar com campo vazio não apaga a idade")
+    pg.evaluate("tab='treino';render();scrollTo(0,0)");pg.wait_for_timeout(200);t=pg.inner_text("#app")
+    A("Sequência de 3 treinos: o app segue a ordem e continua na semana seguinte." in t,"Treino explica a sequência A/B/C")
+    A("Escolher outro" in t and "Sortear outro" in t and "\nTrocar\n" not in t,"Trocar e Sortear com nomes claros")
+    A(pg.locator("#exc0 .note:has-text('sobrando umas 2')").count()==1,"primeiro registro: dica de carga uma vez")
+    pg.evaluate("S.wk[pid()]=[];S.last[pid()]={'Agachamento':{s:[{w:40,r:10}]}};save();render()")
+    A(pg.locator("#exc0 .note:has-text('sobrando umas 2')").count()==0,"com registro anterior a dica some")
+    A(not errs,"sem erros JS "+str(errs[:2]))
+    b.close()
+print("FALHAS:",F)

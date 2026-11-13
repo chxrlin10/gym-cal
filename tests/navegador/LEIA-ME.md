@@ -13,6 +13,7 @@ python3 tests/navegador/busca_alimentos.py    # busca e ordem dos resultados
 python3 tests/navegador/estilos_treino.py     # estilos de divisão (Premium) e Automático (grátis)
 python3 tests/navegador/hoje_v84.py           # ordem dos blocos da aba Hoje
 python3 tests/navegador/falhas_sync.py        # armazenamento cheio, rede caindo e dois aparelhos (Supabase simulado em servidor_falso.py)
+python3 tests/navegador/cadastro_e_treino.py # primeiro cadastro com um botão só e textos de ajuda do Treino
 ```
 
 Cada teste termina com `FALHAS: []` quando tudo passa. Para testar outro arquivo: `GYMCAL_HTML=/caminho/index.html python3 ...`.
