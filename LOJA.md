@@ -5,7 +5,7 @@
 **Descrição curta (80):** Meta de calorias, diário de comida e treino por série, tudo em um app.
 **Descrição completa:**
 O Gym.cal calcula sua meta diária de calorias pelo seu corpo e rotina, e sugere treinos para você: na academia ou em casa, de 2 a 6 dias por semana.
-- Registre refeições em medidas do dia a dia (colher, fatia, unidade) com mais de 380 alimentos e leitor de código de barras
+- Registre refeições em medidas do dia a dia (colher, fatia, unidade) com mais de 950 alimentos e leitor de código de barras
 - Treino com demonstração animada e músculos trabalhados de cada exercício
 - Registro por série, com sugestão de progressão e recordes
 - Calorias gastas no treino e no cardio (opcional) somadas à sua meta

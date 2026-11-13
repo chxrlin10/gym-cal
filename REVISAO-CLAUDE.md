@@ -1,3 +1,47 @@
+# Gym.cal v85 (1.0.6) — 13/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v85).** Integra o pacote "v84-corrigido" do ChatGPT (correções de segurança de dados, descritas em `CORRECOES-SEGURANCA-V84.md`). Ele partiu da v84 certa, então nada posterior foi perdido. Nenhuma funcionalidade nova, nenhuma tela nova; Free e Premium iguais à v84.
+
+## O que entrou
+| Correção do ChatGPT | Decisão |
+|---|---|
+| `save()`, `stash()` e `snapSet()` dizem se conseguiram gravar | **Mantida** |
+| Cópia de segurança obrigatória antes de trocar de conta, combinar, atualizar pela nuvem, restaurar backup e nas escolhas da tela "Dados diferentes" | **Mantida** |
+| Versão da nuvem que não cabe no aparelho não substitui a da tela ("Armazenamento cheio…") | **Mantida** |
+| Os dois lados mudaram e não há cópia de base: pergunta em vez de combinar sozinho | **Mantida** |
+| Edição feita enquanto um envio estava a caminho é enviada logo depois | **Mantida** |
+| "Sair e limpar" só apaga depois de confirmar que a última versão chegou na nuvem | **Mantida** |
+| Texto da loja: "mais de 950 alimentos" | **Mantida** |
+| Cópia de segurança com o armazenamento quase cheio | **Ajustada**: a do ChatGPT exigia espaço para 3 cópias; se não coubesse, bloqueava a sincronização mesmo havendo espaço para 1. Agora tenta 3 e, se não couber, guarda só a mais recente. Só bloqueia quando nem 1 cabe. |
+
+## Testado aqui (com resultado)
+- `npm test`: 32 de front, 10 de servidor (provedores simulados), 9 de banco (PostgreSQL WASM). Todos passam.
+- Todos os testes de navegador em `tests/navegador` (Chrome real): `FALHAS: []`.
+- Teste novo `tests/navegador/falhas_sync.py`, com Supabase simulado (`servidor_falso.py`) e dois aparelhos (dois navegadores separados na mesma conta). Cobre:
+  - armazenamento cheio (falha total, falha só numa chave e limite de espaço): aviso na tela, cópia salva intacta, 1 cópia em vez de 3, bloqueio quando nem 1 cabe, versão da nuvem que não cabe, restaurar backup sem espaço;
+  - rede: sem conexão, volta da conexão, resposta perdida depois de o servidor gravar (sem duplicar), edição durante envio lento;
+  - dois aparelhos: alterações diferentes, apagar num e registrar no outro, mesmo alimento registrado nos dois, falta de cópia de base (pergunta; "Combinar" junta os dois lados), sair e limpar sem internet.
+  - **Rodado contra a v84 antiga, o mesmo teste falha em 7 pontos** (os que as correções resolvem). Contra o index do pacote do ChatGPT, falha só em "guardar 1 cópia em vez de 3" (o ajuste acima). Na v85 passa inteiro.
+- Bateria antiga de 31 testes de interface: passa (só o `t4`, desatualizado desde a v67, falha como antes).
+- 7 rodadas de ~340 toques aleatórios: nenhum erro de JavaScript, dados válidos ao reabrir.
+- Dados salvos pelas versões v41, v51, v60, v67, v70, v77 e v84 abrem na v85 sem a tela de erro e com o diário idêntico.
+- Login em aparelho limpo traz os dados da nuvem; layout em 320, 390 e 1280 px, claro e escuro, sem rolagem lateral; contraste conferido.
+- Dados corrompidos de propósito: 9 de 11 casos abrem consertados. Os outros 2 já eram assim desde a v81 e **nenhuma versão do app grava dados nesse formato** (perfil sem `id`; rotina salva como texto). No primeiro, o diário fica guardado mas não aparece; no segundo, abre a tela de recuperação com o original intacto. Não mexi nisso agora para não arriscar a abertura de dados reais.
+- Compilação Android: GitHub Actions, depois do envio desta versão.
+
+## Conflitos que continuam (investigados, sem migração)
+A combinação de dois aparelhos compara registros pelo **conteúdo** (não há ID por refeição/treino). Com a cópia de base, isso resolve corretamente: alterações diferentes, apagar num e registrar no outro, e o mesmo alimento registrado duas vezes. Ficam três limitações, todas sem perda de dados:
+1. **Mesmo registro editado nos dois aparelhos antes de sincronizar** (ex.: 100 kcal virou 200 num e 300 no outro): ficam os dois registros. A pessoa apaga o que não vale. Corrigir exige ID por registro em todos os dados salvos (migração), adiado de propósito.
+2. **Os dois aparelhos ficam com o conteúdo inteiro idêntico** (fizeram exatamente as mesmas alterações sem internet): o app entende como uma alteração só. É a mesma regra que evita duplicar quando a resposta do servidor se perde, caso bem mais comum.
+3. **Sem cópia de base e escolhendo "Combinar"**: um registro apagado num aparelho pode voltar. Por isso o app agora pergunta antes. "Usar os dados da conta" guarda uma cópia dos dados do aparelho antes de trocar. "Manter os deste aparelho" substitui a versão da nuvem; o outro aparelho guarda a versão dele numa cópia de segurança quando atualizar.
+
+`updated_at` vem do relógio do aparelho, mas o servidor só aceita a gravação se a data for **igual** à que o aparelho viu por último. Relógio errado não faz perder dados; no máximo, num conflito do mesmo campo do perfil, vence o aparelho com relógio adiantado. **Não** colocar gatilho que troque `updated_at` por `now()` sem mudar o app junto (ver `TESTES-SUPABASE-REAL.md`).
+
+## Depende de ambiente externo (não testado)
+- Supabase real: migração, RLS com tokens reais, condição de data com o Postgres real, funções publicadas, exclusão de conta, e-mail de recuperação. Roteiro passo a passo em **`TESTES-SUPABASE-REAL.md`**.
+- Celular real: armazenamento cheio de verdade (só simulado no navegador), modo avião, Android (Voltar, teclado, fonte grande, câmera), iPhone pela tela inicial.
+- Google Play e RevenueCat: compra, renovação, cancelamento, expiração, restauração. A cobrança continua desligada (`RC_KEY=""`).
+
 # Gym.cal v84 — 13/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v84).** Integra a proposta `ALTERACOES-UX-V84-PROPOSTA.md` (feita sobre a v83) depois de comparar o código item a item. Só a aba Hoje mudou; nenhuma regra, cálculo, treino, alimentação, ponto, rank ou sincronização.

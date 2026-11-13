@@ -1043,7 +1043,7 @@ function norm(d,old,fix){if(!d||typeof d!=="object"||Array.isArray(d))return;d=f
  S.act=Math.max(0,Math.min(Math.floor(+S.act)||0,S.people.length-1))}
 try{const r=localStorage.getItem("gymcal2");if(r){const d0=JSON.parse(r);let fixed=false;try{validateState(d0)}catch(e){fixed=true}try{norm(d0,false,true)}catch(e){/* último recurso para dados deste aparelho: abre como as versões anteriores abriam */S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(d0,false,"loose")}if(fixed){try{if(!localStorage.getItem("gymcal2_copia"))localStorage.setItem("gymcal2_copia",r)}catch(x){}}if(rtFix||fixed){rtFix=false;localStorage.setItem("gymcal2",JSON.stringify(S))}}}catch(e){loadError=true}
 let lsErr=false;
-const save=q=>{if(!q)S.ts=Math.max(Date.now(),(S.ts||0)+1);try{localStorage.setItem("gymcal2",JSON.stringify(S));lsErr=false}catch(e){lsErr=true}if(!q&&typeof sched==="function")sched()};
+const save=q=>{if(!q)S.ts=Math.max(Date.now(),(S.ts||0)+1);try{localStorage.setItem("gymcal2",JSON.stringify(S));lsErr=false}catch(e){lsErr=true}if(!q&&typeof sched==="function")sched();return !lsErr};
 const SB={u:"https://ypudxlvlssvulbfuwdxu.supabase.co",k:"sb_publishable_8lwXX3J2acaOGPWx6Cz9Cg_pgCBWs24"};
 let A=null,EP=0,cl={st:"",ask:null,tm:0,arm:false,arm2:false,arm3:false,fl:null,ready:false,lock:false};const live=(u,e)=>!!A&&A.uid===u&&EP===e;
 try{A=JSON.parse(localStorage.getItem("gymcal_auth")||"null")}catch(e){}
@@ -1064,12 +1064,12 @@ const hasData=()=>S.people[0].set||S.people.length>1||["log","wk","wt","cardio",
 async function cGet(){if(!A)throw 0;const u=A.uid,t=await tok();if(!t||!A||A.uid!==u)throw 0;const r=await sb("/rest/v1/user_data?select=data,updated_at&user_id=eq."+u,{},t);if(!r.ok)throw 0;return r.j&&r.j[0]||null}
 let SY=null;try{SY=JSON.parse(localStorage.getItem("gymcal_sync")||"null")}catch(e){}
 const saveSY=()=>{try{SY?localStorage.setItem("gymcal_sync",JSON.stringify(SY)):localStorage.removeItem("gymcal_sync")}catch(e){}};
-function stash(why){try{let a=JSON.parse(localStorage.getItem("gymcal_stash")||"[]");if(!Array.isArray(a))a=[];if(hasData())a.unshift({t:Date.now(),why,d:S,u:(A&&A.uid)||(SY&&SY.uid)||"",e:A?A.email:""});localStorage.setItem("gymcal_stash",JSON.stringify(a.slice(0,3)))}catch(e){}}
+function stash(why){try{if(!hasData())return true;let a=JSON.parse(localStorage.getItem("gymcal_stash")||"[]");if(!Array.isArray(a))a=[];a.unshift({t:Date.now(),why,d:JSON.parse(JSON.stringify(S)),u:(A&&A.uid)||(SY&&SY.uid)||"",e:A?A.email:""});for(const n of [3,1]){try{const raw=JSON.stringify(a.slice(0,n));localStorage.setItem("gymcal_stash",raw);if(localStorage.getItem("gymcal_stash")===raw)return true}catch(e){}}/* sem espaço nem para 1 cópia */lsErr=true;return false}catch(e){lsErr=true;return false}}
 function stashShow(){try{const a=JSON.parse(localStorage.getItem("gymcal_stash")||"[]");if(a[0]&&$("#bk"))$("#bk").value=JSON.stringify(Object.assign({},a[0].d,{_bk:{uid:a[0].u||"",email:a[0].e||"",t:a[0].t}}))}catch(e){}}
 function stashInfo(){try{const a=JSON.parse(localStorage.getItem("gymcal_stash")||"[]");return a[0]?new Date(a[0].t).toLocaleDateString("pt-BR"):""}catch(e){return""}}
 function resetLocal(){S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};try{localStorage.removeItem("gymcal2");localStorage.removeItem("gymcal_snap")}catch(e){}tab="perfil";plan="";edRt=false}
 const cj=x=>JSON.stringify(x,(k,v)=>v&&typeof v==="object"&&!Array.isArray(v)?Object.keys(v).sort().reduce((o,q)=>(o[q]=v[q],o),{}):v);
-function snapSet(u,base,str){try{localStorage.setItem("gymcal_snap",JSON.stringify({uid:u,base,s:str}))}catch(e){}}
+function snapSet(u,base,str){try{const raw=JSON.stringify({uid:u,base,s:str});localStorage.setItem("gymcal_snap",raw);return localStorage.getItem("gymcal_snap")===raw}catch(e){lsErr=true;return false}}
 function snapGet(){try{const x=JSON.parse(localStorage.getItem("gymcal_snap")||"null");if(x&&A&&SY&&x.uid===A.uid&&x.base&&x.base===SY.base)return JSON.parse(x.s)}catch(e){}return undefined}
 function mergeS(a,b,bs){const W=(a.ts||0)>=(b.ts||0)?a:b,L=W===a?b:a,o=JSON.parse(JSON.stringify(W)),isO=v=>v&&typeof v==="object"&&!Array.isArray(v),B=isO(bs)?bs:null,pe=x=>Array.isArray(x)?x:[],sig=cj,
  cnt=x=>{const m=new Map();pe(x).forEach(e=>{const s=sig(e);m.set(s,(m.get(s)||0)+1)});return m},
@@ -1089,10 +1089,10 @@ function mergeS(a,b,bs){const W=(a.ts||0)>=(b.ts||0)?a:b,L=W===a?b:a,o=JSON.pars
 async function cPush0(){if(!A||!cl.ready||cl.ask||cl.lock||!SY||SY.uid!==A.uid)throw "blocked";const u=A.uid,e0=EP,t=await tok();if(!t||!live(u,e0)||!cl.ready||cl.ask||cl.lock||!SY||SY.uid!==u)throw 0;const ts=S.ts||Date.now(),iso=new Date(ts).toISOString(),str=JSON.stringify(S),mine=SY&&SY.uid===u&&SY.base;let r;
  if(mine)r=await sb("/rest/v1/user_data?user_id=eq."+u+"&updated_at=eq."+encodeURIComponent(SY.base),{m:"PATCH",h:{Prefer:"return=representation"},b:{data:JSON.parse(str),updated_at:iso}},t);
  else r=await sb("/rest/v1/user_data?on_conflict=user_id",{m:"POST",h:{Prefer:"resolution=ignore-duplicates,return=representation"},b:{user_id:u,data:JSON.parse(str),updated_at:iso}},t);
- if(!live(u,e0))throw 0;if(!r.ok)throw 0;if(!Array.isArray(r.j)||!r.j.length)throw "conflict";SY={uid:u,base:r.j[0].updated_at};saveSY();snapSet(u,SY.base,str)}
+ if(!live(u,e0))throw 0;if(!r.ok)throw 0;if(!Array.isArray(r.j)||!r.j.length)throw "conflict";SY={uid:u,base:r.j[0].updated_at};saveSY();cl.confirmedPayload=str;if(!snapSet(u,SY.base,str))cmsg("Sincronizado, mas não consegui salvar a cópia de segurança local. Faça uma exportação.");if(JSON.stringify(S)!==str&&!cl.outBusy)setTimeout(()=>{if(live(u,e0)&&cl.ready&&!cl.lock)sched()},0)}
 function cPush(){const u=A&&A.uid,e=EP;const p=Promise.resolve(cl.fl).then(()=>{if(!live(u,e))throw "stale";return cPush0()});cl.fl=p.catch(()=>{});return p}
 const cPushSafe=()=>cPush().catch(e=>e==="conflict"?cPull(0):Promise.reject(e));
-function applyRemote(d,ts){d=repairState(d);cl.remoteApplied=true;const raw=JSON.stringify(d);S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(d,false);S.ts=Date.parse(ts)||Date.now();save(true);SY={uid:A.uid,base:ts};saveSY();cl.ready=true;snapSet(A.uid,ts,raw);tab=S.people[0].set?"hoje":"perfil";plan=""}
+function applyRemote(d,ts){d=repairState(d);const previous=S,raw=JSON.stringify(d);S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};try{norm(d,false);S.ts=Date.parse(ts)||Date.now();if(!save(true))throw new Error("save-failed")}catch(e){S=previous;throw e}cl.remoteApplied=true;SY={uid:A.uid,base:ts};saveSY();cl.ready=true;snapSet(A.uid,ts,raw);tab=S.people[0].set?"hoje":"perfil";plan=""}
 function renderKeep(){const m={},fa=document.activeElement&&document.activeElement.id;
  document.querySelectorAll("#app input[id],#app textarea[id],#app select[id]").forEach(e=>{if(!["hidden","password"].includes(e.type))m[e.id]={value:e.value,checked:e.checked}});
  render();for(const k in m){const e=document.getElementById(k);if(e){e.value=m[k].value;if(e.type==="checkbox"||e.type==="radio")e.checked=m[k].checked}}
@@ -1103,19 +1103,19 @@ async function cPull(n=0,leaving=false){if(!A||cl.lock||(cl.outBusy&&!leaving))r
 async function cPull0(n=0){if(!A||cl.lock)return;const u0=A.uid,e0=EP;cl.ready=false;cmsg("Sincronizando...");
  try{const r=await cGet();if(!live(u0,e0))return;if(r)r.data=repairState(r.data);const same=SY&&SY.uid===A.uid;cl.ask=null;cl.ready=!!same;
   if(SY&&!same&&hasData()){
-   if(r){stash("Dados deste aparelho antes de entrar em outra conta");applyRemote(r.data,r.updated_at);cmsg("Esta conta é diferente da que estava neste aparelho. Carregamos só os dados dela. Os dados anteriores ficaram guardados no aparelho e não foram enviados.")}
+   if(r){if(!stash("Dados deste aparelho antes de entrar em outra conta"))throw new Error("backup-failed");applyRemote(r.data,r.updated_at);cmsg("Esta conta é diferente da que estava neste aparelho. Carregamos só os dados dela. Os dados anteriores ficaram guardados no aparelho e não foram enviados.")}
    else cl.ask={other:true};
   }else if(!r&&same&&SY.base&&hasData())cl.ask={gone:true};
   else if(!r){SY={uid:A.uid,base:""};saveSY();cl.ready=true;if(hasData()){await cPush();cmsg("Dados enviados para a sua conta.")}else{SY={uid:A.uid,base:""};saveSY();cmsg("Conta conectada.")}}
   else if(!hasData()){applyRemote(r.data,r.updated_at);cmsg("Dados da conta carregados.")}
   else if(same&&SY.base){const rc=r.updated_at!==SY.base,lc=(S.ts||0)!==Date.parse(SY.base),sd=x=>{const c=JSON.parse(JSON.stringify(x));delete c.ts;return cj(c)};
    if(rc&&sd(S)===sd(r.data)){S.ts=Date.parse(r.updated_at)||S.ts;save(true);SY={uid:A.uid,base:r.updated_at};saveSY();snapSet(A.uid,r.updated_at,JSON.stringify(r.data));cmsg("Sincronizado.")}
-   else if(rc&&lc){stash("Dados deste aparelho antes de combinar com a nuvem");const bs=snapGet(),m=mergeS(S,r.data,bs);S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(m,false);S.ts=Date.now();SY={uid:A.uid,base:r.updated_at};saveSY();snapSet(A.uid,r.updated_at,JSON.stringify(r.data));save(true);await cPush();cmsg("Os dados dos dois aparelhos foram combinados e sincronizados.")}
-   else if(rc){applyRemote(r.data,r.updated_at);cmsg("Dados da conta carregados.")}
+   else if(rc&&lc){const bs=snapGet();if(!bs){cl.ask={d:r.data,rt:r.updated_at,noBase:true};cl.ready=false;cmsg("Históricos diferentes e sem cópia de base confiável. Escolha como proceder em Conta.");renderKeep();return}if(!stash("Dados deste aparelho antes de combinar com a nuvem"))throw new Error("backup-failed");const m=mergeS(S,r.data,bs);S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(m,false);S.ts=Date.now();SY={uid:A.uid,base:r.updated_at};saveSY();snapSet(A.uid,r.updated_at,JSON.stringify(r.data));save(true);await cPush();cmsg("Os dados dos dois aparelhos foram combinados e sincronizados.")}
+   else if(rc){if(!stash("Dados deste aparelho antes de atualizar pela nuvem"))throw new Error("backup-failed");applyRemote(r.data,r.updated_at);cmsg("Dados da conta carregados.")}
    else if(lc){await cPush();cmsg("Sincronizado.")}else cmsg("Sincronizado.")}
   else if(Date.parse(r.updated_at)===(S.ts||0)){SY={uid:A.uid,base:r.updated_at};saveSY();cl.ready=true;cmsg("Sincronizado.")}
   else cl.ask={d:r.data,rt:r.updated_at};
- }catch(x){if(!live(u0,e0))return;if(x==="conflict"&&n<3)return cPull0(n+1);cmsg(x==="conflict"?"Os dados mudaram em outro aparelho. Toque em Sincronizar agora.":"Sem conexão. Seus dados continuam salvos neste aparelho.")}if(cl.remoteApplied){cl.remoteApplied=false;render()}else renderKeep();entRefresh()}
+ }catch(x){if(!live(u0,e0))return;if(x==="conflict"&&n<3)return cPull0(n+1);cmsg(x==="conflict"?"Os dados mudaram em outro aparelho. Toque em Sincronizar agora.":x&&x.message==="backup-failed"?"Não consegui criar uma cópia de segurança. Nenhum dado foi substituído. Exporte um backup antes de continuar.":x&&x.message==="save-failed"?"Armazenamento cheio: não consegui salvar a versão da nuvem. Os dados locais foram preservados.":"Sem conexão. Seus dados continuam salvos neste aparelho.")}if(cl.remoteApplied){cl.remoteApplied=false;render()}else renderKeep();entRefresh()}
 async function cAuth(up){if(cl.authBusy||cl.lock||cl.outBusy||rcBusy)return;const e=$("#cem").value.trim(),p=$("#cpw").value;if(!/.+@.+\..+/.test(e)){cmsg("Digite um e-mail válido.");return}if(p.length<8){cmsg("A senha precisa ter pelo menos 8 caracteres.");return}
  if(up&&!$("#ccn").checked){cmsg("Para criar a conta, marque que leu a Política de Privacidade e concorda com o uso dos seus dados.");return}
  cl.authBusy=true;const authEP=EP;cmsg(up?"Criando conta...":"Entrando...");
@@ -1125,10 +1125,10 @@ async function cAuth(up){if(cl.authBusy||cl.lock||cl.outBusy||rcBusy)return;cons
   if(!r.j||!r.j.access_token){cmsg("Conta criada. Confirme pelo link que enviamos ao seu e-mail e depois toque em Entrar.");return}
   EP++;cl.ready=false;entClear();clearTimeout(cl.tm);setA(r.j);await cPull()}catch(x){cmsg("Sem conexão com o servidor. Tente de novo.")}finally{cl.authBusy=false}}
 async function cUse(c){if(!A||cl.lock||cl.outBusy)return;const k=cl.ask;cl.ask=null;cl.ready=true;
- if(k&&(k.other||k.gone)){if(c===1){SY={uid:A.uid,base:""};saveSY();S.ts=Date.now();save(true);try{await cPush();cmsg("Dados deste aparelho enviados para esta conta.")}catch(x){cmsg("Sem conexão.")}}else{stash("Dados deste aparelho antes de começar do zero");resetLocal();SY={uid:A.uid,base:""};saveSY();cmsg("Começando do zero. Os dados anteriores ficaram guardados no aparelho.")}render();return}
+ if(k&&(k.other||k.gone)){if(c===1){SY={uid:A.uid,base:""};saveSY();S.ts=Date.now();save(true);try{await cPush();cmsg("Dados deste aparelho enviados para esta conta.")}catch(x){cmsg("Sem conexão.")}}else{if(!stash("Dados deste aparelho antes de começar do zero")){cl.ask=k;cl.ready=false;cmsg("Não consegui guardar o backup anterior. Exporte os dados antes de limpar.");render();return}resetLocal();SY={uid:A.uid,base:""};saveSY();cmsg("Começando do zero. Os dados anteriores ficaram guardados no aparelho.")}render();return}
  if(!k){render();return}
- if(c===1){stash("Dados deste aparelho antes de usar os da conta");applyRemote(k.d,k.rt);cmsg("Dados da conta carregados.")}
- else if(c===2){stash("Dados deste aparelho antes de combinar");const m=mergeS(S,k.d);S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(m,false);S.ts=Date.now();SY={uid:A.uid,base:k.rt};saveSY();snapSet(A.uid,k.rt,JSON.stringify(k.d));save(true);try{await cPush();cmsg("Dados combinados e enviados.")}catch(x){cmsg("Sem conexão. Combinei os dados neste aparelho e tento enviar depois.")}}
+ if(c===1){if(!stash("Dados deste aparelho antes de usar os da conta")){cl.ask=k;cl.ready=false;cmsg("Sem espaço para backup. Exporte seus dados antes de substituí-los.");render();return}applyRemote(k.d,k.rt);cmsg("Dados da conta carregados.")}
+ else if(c===2){if(!stash("Dados deste aparelho antes de combinar")){cl.ask=k;cl.ready=false;cmsg("Não consegui guardar o backup anterior. Exporte seus dados.");render();return}const m=mergeS(S,k.d,k.noBase?undefined:snapGet());S={v:1,act:0,people:[mk("Pessoa 1")],log:{},wk:{},last:{},wt:{},water:{},cardio:{},custom:[]};norm(m,false);S.ts=Date.now();SY={uid:A.uid,base:k.rt};saveSY();snapSet(A.uid,k.rt,JSON.stringify(k.d));save(true);try{await cPush();cmsg("Dados combinados e enviados.")}catch(x){cmsg("Sem conexão. Combinei os dados neste aparelho e tento enviar depois.")}}
  else{SY={uid:A.uid,base:k.rt};saveSY();S.ts=Date.now();save(true);try{await cPush();cmsg("Dados deste aparelho enviados.")}catch(x){cmsg("Sem conexão.")}}
  render()}
 function wipePersonal(){
@@ -1138,7 +1138,8 @@ function wipePersonal(){
 }
 async function cOut(wipe){if(cl.lock||cl.outBusy||rcBusy)return;if(wipe&&!cl.arm3){cl.arm3=true;render();return}cl.arm3=false;cl.outBusy=true;EP++;clearTimeout(cl.tm);let ok=true;
  try{if(A){try{try{await cPush()}catch(e){if(e!=="conflict")throw e;await cPull(0,true);if(cl.ask)throw 0;await cPush()}}catch(e){ok=false}}
- if(wipe&&!ok){cmsg("Não consegui sincronizar antes de limpar. Gere um backup ou tente com internet.");render();return}
+ if(wipe&&ok){for(let attempt=0;attempt<3&&JSON.stringify(S)!==cl.confirmedPayload;attempt++){try{await cPush()}catch(e){ok=false;break}}if(JSON.stringify(S)!==cl.confirmedPayload)ok=false}
+ if(wipe&&!ok){cmsg("Não consegui confirmar o envio da versão mais recente. Não apaguei os dados deste aparelho. Exporte um backup ou tente com internet.");render();return}
  const old=A;A=null;saveA();EP++;cl.ready=false;entClear();cl.ask=null;cl.arm=false;if(old)sb("/auth/v1/logout?scope=local",{m:"POST"},old.at).catch(()=>{});
  if(wipe){wipePersonal();cmsg("Você saiu e os dados deste aparelho foram limpos.")}else cmsg(ok?"Você saiu da conta.":"Saiu da conta. Há alterações que não foram enviadas; elas seguem neste aparelho.");render();
  }finally{cl.outBusy=false}}
@@ -1965,7 +1966,7 @@ function rest(s){clearInterval(tmr);let t=s;const f=()=>{const e=$("#rt");if(e)e
 function expo(){$("#bk").value=JSON.stringify(Object.assign({},S,{_bk:{uid:(A&&A.uid)||(SY&&SY.uid)||"",email:A?A.email:"",t:Date.now()}}))}
 function impo(){try{if($("#bk").value.length>10000000)throw 0;let d=JSON.parse($("#bk").value);d=repairState(d);if(!Array.isArray(d.people)||!d.people.length)throw 0;const bk=d._bk&&typeof d._bk==="object"?d._bk:null,bu=bk&&typeof bk.uid==="string"?bk.uid:"";delete d._bk;
   if(A){if(bu&&bu!==A.uid){$("#bk").value="Este backup é de outra conta. Para não enviar dados de uma pessoa para a conta de outra, saia da conta antes de restaurá-lo.";return}if(!bu&&!cl.bkc){cl.bkc=true;$("#bk").value=JSON.stringify(Object.assign({},d,{_bk:{uid:""}}));cmsg("Este backup não diz de qual conta é. Ao restaurar, ele será enviado para a conta atual. Toque em Restaurar de novo para confirmar.");renderKeep();return}}
-  cl.bkc=false;stash("Dados deste aparelho antes de restaurar um backup");S={};norm(d,false);delete S.prem;if(!A&&(!SY||bu!==SY.uid)){SY=null;saveSY();try{localStorage.removeItem("gymcal_snap")}catch(e){}}save();render()}catch(e){$("#bk").value="Backup inválido. Cole o texto completo gerado pelo app."}}
+  cl.bkc=false;if(!stash("Dados deste aparelho antes de restaurar um backup")){cmsg("Não consegui salvar a cópia atual. Exporte seus dados antes de restaurar.");return}S={};norm(d,false);delete S.prem;if(!A&&(!SY||bu!==SY.uid)){SY=null;saveSY();try{localStorage.removeItem("gymcal_snap")}catch(e){}}save();render()}catch(e){$("#bk").value="Backup inválido. Cole o texto completo gerado pelo app."}}
 $("#tabs").onclick=e=>{const b=e.target.closest("button");if(b){tab=b.dataset.t;render();scrollTo(0,0)}};
 try{const d=JSON.parse(localStorage.getItem("gymcal_redraft")||"null");if(d&&Array.isArray(d.RE)&&d.RE.length){const ix=S.people.findIndex(p=>p.id===d.p);if(ix>=0){S.act=ix;RE=d.RE.filter(x=>x&&typeof x==="object"&&Array.isArray(x.ex)).slice(0,6);RE.forEach(D=>{D.ex=D.ex.filter(e=>Array.isArray(e)&&EX[e[0]]);if(!D.id)D.id=uid()});if(RE.length){reBase=d.b||"";reP=d.p;edRt=true;tab="treino"}else RE=null}}}catch(e){RE=null;edRt=false}
 function sdClose(){const o=document.getElementById("sdo");if(o)o.remove();document.removeEventListener("keydown",sdKey)}
