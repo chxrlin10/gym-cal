@@ -1,3 +1,15 @@
+# Gym.cal v89 (1.1.0) — 14/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v89).** Pedido do Charles: cardio de 10 min não deveria contar como treino do dia.
+
+- O cardio só conta como treino do dia (pontos, sequência, semana e meta de dias) a partir de **20 min** (`CDMIN=20` no `index.html`). Abaixo disso o cardio continua somando calorias gastas, só não vale como dia de treino.
+- Texto do rank atualizado: "treino ou cardio de 20 min ou mais".
+- Não muda nada nos dados salvos. Rank já conquistado não cai (o app guarda o maior).
+- Teste novo: `tests/navegador/cardio_minimo.py` (10, 15, 19 min não contam; 20 e 30 contam; calorias somam sempre).
+- Ficou como estava: a conta antiga usada só na migração de rank (`stkTrL`) conta qualquer cardio, para ninguém perder rank.
+
+---
+
 # Gym.cal v88 (1.0.9) — 13/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v88).** Pedido do Charles: um jeito de treinar para quem quer afinar e firmar, com mais pernas e glúteo.

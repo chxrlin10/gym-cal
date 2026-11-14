@@ -1,6 +1,6 @@
 # Gym.cal — histórico das versões do ChatGPT
 
-> Versão atual: **v88 / 1.0.9** (Claude, 13/11/2026). Leia primeiro `REVISAO-CLAUDE.md` e, antes de publicar, siga `TESTES-SUPABASE-REAL.md`.
+> Versão atual: **v89 / 1.1.0** (Claude, 14/11/2026). Leia primeiro `REVISAO-CLAUDE.md` e, antes de publicar, siga `TESTES-SUPABASE-REAL.md`.
 > **Use SEMPRE o ZIP mais recente que o Claude devolveu como base.** Os pacotes "v80" e "v81" do ChatGPT partiram de versões antigas e não tinham as correções do Claude (dados antigos que travavam o app, limites de carga, ajustes de tela). A v82 junta tudo.
 
 ## "v81" do ChatGPT (alimentos e busca), incorporada na v82

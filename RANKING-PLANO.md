@@ -3,7 +3,7 @@
 ## Escopo v1
 - Ranking **mensal e privado entre amigos**. Entrada opcional por **código de convite** (6–8 caracteres, expira, revogável pelo dono).
 - Mostra **apelido** (nunca nome real/e-mail). Apelido único por grupo, filtro de palavras ofensivas.
-- **Pontos competitivos ≠ pontos pessoais.** Só atividade física elegível (treino válido; cardio ≥ 10 min). Alimentação não entra.
+- **Pontos competitivos ≠ pontos pessoais.** Só atividade física elegível (treino válido; cardio ≥ 20 min). Alimentação não entra.
 - Teto comum: **4 dias pontuáveis por semana** (3 pts/dia → máx. 12/sem + bônus de meta opcional).
 - Zera todo mês; histórico de meses anteriores fica só como "campeão do mês".
 
