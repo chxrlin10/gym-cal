@@ -1,3 +1,30 @@
+# Gym.cal v91 (1.3.0) — 17/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v91).** Missão: corrigir, melhorar e validar o planejador da v90. Continua opcional e determinístico (sem IA, sem rede, sem sorteio). Sem avaliação ligada, o plano é idêntico ao da v89 (360 planos comparados com `tests/navegador/planos_v89.json`).
+
+**Bugs da v90 confirmados e corrigidos**
+- `avOf` aceitava chaves herdadas (`toString`, `constructor`) como objetivo: agora usa lista explícita e `hasOwn`.
+- Troca de exercício dentro do plano da avaliação ignorava equipamento, nível, limitação e exclusões: agora só vale se o exercício é do mesmo músculo, disponível, sem duplicar nem repetir variação, e se cabe no tempo.
+- Regiões em `EXM` revistas: agachamentos e afundos passam a contar lombar, remada unilateral conta ombro. Sem marca não é garantia de segurança e o plano diz isso.
+- `p.days`, `p.exp`, `p.vr`, `p.sub`, `p.av` normalizados (`daysOf`, `expOf`, `hasOwn`); `p.av` inválido é descartado ao carregar.
+- Sessão vazia ou com menos de 2 exercícios não aparece como treino: o plano explica (volume do nível já distribuído, ou falta de exercício) e a aba Treino mostra "Não foi possível montar seu treino" quando nada fica completo. Salvar é bloqueado se a avaliação não monta nenhum treino.
+- `splitFrom` só reinicia se o plano efetivo mudar (avaliação desligada não reinicia).
+- Modo cuidadoso: texto passa a descrever exatamente o que faz (até 3 séries por exercício, volume 25% menor, sem exercícios avançados, repetições mais leves) e diz que isso não torna o treino seguro.
+- Limite de duração tratado também com 1 ou 2 exercícios (não reproduziu em 12.960 combinações; ficou a proteção).
+- Mudança não salva aparece como rascunho; "Por que este plano?" mostra o último salvamento.
+
+**Seleção e volume**
+- Divisão escolhida por pontuação (frequência de cada grupo, recuperação, equilíbrio), com a alternativa descartada explicada; não é mais tabela fixa por dias.
+- Série indireta conta pela participação do músculo e vale no máximo 50% da meta; um exercício não infla vários músculos.
+- Prioridade (máx. 2) soma séries até um teto e distribui em 2 ou mais sessões quando a frequência permite.
+- "Por que este plano?" é calculado a partir do plano entregue: divisão, frequência real de cada prioridade, séries efetivas, limitações que afetaram, metas não atingidas.
+
+**Testes**: `tests/navegador/planejador.py` ampliado (oráculo de regiões escrito à parte, Rafaela, iniciante em hipertrofia, substituições, dados corrompidos, sessões vazias, duração, XSS, ouvinte único, rascunho, estilos Premium, persistência). Um teste de limitação passou a aceitar sessão curta quando o plano avisa (a revisão das regiões ficou mais conservadora de propósito).
+
+**Limites conhecidos**: o catálogo tem 68 exercícios; com ombro limitado em academia os treinos de parte de cima ficam curtos (o plano avisa). Iniciante com 5 a 6 dias recebe menos sessões do que dias pedidos quando o volume do nível já foi distribuído; o plano explica e recomenda cardio leve ou descanso.
+
+---
+
 # Gym.cal v90 (1.2.0) — 17/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v90).** Pedido do Charles: evoluir o treino para um planejador personalizado, **determinístico** (sem IA generativa) e explicável. Esta versão é a parte A de 4 (base + motor + avaliação). Detalhes e regras em `PLANEJADOR-TREINO.md`.

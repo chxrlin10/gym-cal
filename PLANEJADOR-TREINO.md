@@ -1,4 +1,4 @@
-# Planejador de treino do Gym.cal (v90)
+# Planejador de treino do Gym.cal (v91)
 
 Sistema **determinístico**: a mesma avaliação gera sempre o mesmo plano. Não usa IA generativa, sorteio, data nem rede. Cada escolha tem um motivo que aparece em Perfil › Preferências de treino › **Por que este plano?**.
 
@@ -58,4 +58,13 @@ Sistema **determinístico**: a mesma avaliação gera sempre o mesmo plano. Não
 
 ## O que ainda não existe (próximas versões)
 
-Substituição por equivalente com pontuação (v91), registro de esforço e execução, média semanal de peso, medidas e força (v92), revisão periódica e detecção de recuperação (v93).
+Substituição por equivalente com pontuação, registro de esforço e execução, média semanal de peso, medidas e força, revisão periódica e detecção de recuperação.
+
+## O que mudou na v91
+
+- A divisão é escolhida por pontuação entre candidatas (`SPC`/`avPick`), não por tabela fixa; o texto explica a escolhida e a descartada.
+- Série indireta vale pela participação do músculo (`CRW`, `P2`) e no máximo 50% da meta.
+- `PLN` devolve só sessões com 2 ou mais exercícios e explica o que ficou curto ou de fora (`porVol`: volume já distribuído; `porRes`: falta de exercício com as restrições).
+- `EXM` é conservador: a ausência de região significa "não mapeado", nunca "seguro". O teste usa um oráculo independente.
+- Trocas manuais no plano da avaliação passam por `avOk`, mesmo músculo, sem duplicar e dentro do tempo.
+- Nada disso muda banco ou sincronização; `p.av` continua dentro do perfil.
