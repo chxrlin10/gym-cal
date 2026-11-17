@@ -12,7 +12,7 @@
 - Teste novo: `tests/navegador/planejador.py` (720 combinações de local × dias × nível × objetivo × duração, determinismo, objetivos, divisões, níveis, exercícios e equipamentos indisponíveis, cada limitação, modo cuidadoso, prioridades, duração, volume de recuperação em 6 dias, compatibilidade com a v89, dados corrompidos, troca de exercício, tela e persistência). Bateria completa passou.
 - Ajustes que os testes forçaram: volume do braço e panturrilha não ficava só no trabalho indireto, costas recebem 2 séries a mais que o peito, o corte por tempo protege o puxar, variações do mesmo exercício não entram na mesma sessão.
 - **Não existe ainda** (próximas partes): substituição por equivalente com pontuação (B); registro de esforço e execução, média semanal de peso, medidas e força (C); revisão periódica e detecção de recuperação insuficiente por sinais (D). Hoje a recuperação é tratada só por volume (iniciante com 5 ou 6 dias recebe menos séries por sessão) e pelo modo cuidadoso.
-- Limitação: o catálogo tem 73 exercícios, então combinações apertadas (casa, sem equipamento e ombro limitado) ficam com poucas opções e o plano avisa.
+- Limitação: o catálogo tem 68 exercícios, então combinações apertadas (casa, sem equipamento e ombro limitado) ficam com poucas opções e o plano avisa.
 
 ---
 
