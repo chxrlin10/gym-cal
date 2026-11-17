@@ -1,3 +1,21 @@
+# Gym.cal v90 (1.2.0) — 17/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v90).** Pedido do Charles: evoluir o treino para um planejador personalizado, **determinístico** (sem IA generativa) e explicável. Esta versão é a parte A de 4 (base + motor + avaliação). Detalhes e regras em `PLANEJADOR-TREINO.md`.
+
+- Novo, **opcional**: em Perfil › Preferências de treino, "Como montar seu treino" › "Pela minha avaliação". Quem não ligar continua com o plano de sempre, idêntico ao da v89 (360 combinações comparadas por impressão digital).
+- Avaliação: objetivo do treino (massa, força, saúde), até 2 músculos prioritários, tempo por treino (30 a 90 min), equipamentos, exercícios a evitar, dor ou limitação por região e "modo cuidadoso" para quem tem condição de saúde orientada por profissional. Dias e experiência continuam os do perfil.
+- Motor `PLN(p)`: escolhe a divisão (corpo inteiro, Superior/Inferior, Empurrar/Puxar/Pernas) por dias, nível e objetivo; define séries por semana por músculo, séries, repetições e descanso; respeita tempo, equipamento, nível e limitações; avisa quando falta exercício em vez de inventar.
+- Tabela lateral `EXM` com padrão de movimento, equipamento, nível e região de cada exercício (o catálogo `EX` não mudou).
+- Tela "Por que este plano?" explica cada escolha e mostra séries por semana contra a meta, por músculo.
+- Continuam valendo: Minha rotina e estilos Premium (têm prioridade), "Variar treino", "Escolher outro exercício", foco em pernas e glúteo (vira prioridade), sincronização e backup (`p.av` fica dentro do perfil, sem migração).
+- Gratuito: não houve mudança de Free/Premium. A proposta de separar o que vira Premium (ajuste automático de carga, revisão periódica) entra nas partes C e D.
+- Teste novo: `tests/navegador/planejador.py` (720 combinações de local × dias × nível × objetivo × duração, determinismo, objetivos, divisões, níveis, exercícios e equipamentos indisponíveis, cada limitação, modo cuidadoso, prioridades, duração, volume de recuperação em 6 dias, compatibilidade com a v89, dados corrompidos, troca de exercício, tela e persistência). Bateria completa passou.
+- Ajustes que os testes forçaram: volume do braço e panturrilha não ficava só no trabalho indireto, costas recebem 2 séries a mais que o peito, o corte por tempo protege o puxar, variações do mesmo exercício não entram na mesma sessão.
+- **Não existe ainda** (próximas partes): substituição por equivalente com pontuação (B); registro de esforço e execução, média semanal de peso, medidas e força (C); revisão periódica e detecção de recuperação insuficiente por sinais (D). Hoje a recuperação é tratada só por volume (iniciante com 5 ou 6 dias recebe menos séries por sessão) e pelo modo cuidadoso.
+- Limitação: o catálogo tem 73 exercícios, então combinações apertadas (casa, sem equipamento e ombro limitado) ficam com poucas opções e o plano avisa.
+
+---
+
 # Gym.cal v89 (1.1.0) — 14/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v89).** Pedido do Charles: cardio de 10 min não deveria contar como treino do dia.

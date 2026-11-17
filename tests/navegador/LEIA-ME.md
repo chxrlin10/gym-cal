@@ -16,6 +16,7 @@ python3 tests/navegador/falhas_sync.py        # armazenamento cheio, rede caindo
 python3 tests/navegador/cadastro_e_treino.py # primeiro cadastro com um botão só e textos de ajuda do Treino
 python3 tests/navegador/foco_treino.py       # foco em pernas e glúteo: planos, tela e regras
 python3 tests/navegador/cardio_minimo.py     # cardio só conta como treino do dia a partir de 20 min
+python3 tests/navegador/planejador.py       # planejador por avaliação: regras, limites, compatibilidade e tela
 ```
 
 Cada teste termina com `FALHAS: []` quando tudo passa. Para testar outro arquivo: `GYMCAL_HTML=/caminho/index.html python3 ...`.
