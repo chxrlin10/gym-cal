@@ -102,10 +102,10 @@ with sync_playwright() as p:
     # ===== v91 =====
     pg.evaluate("Object.assign(P(),{loc:'gym',days:4,exp:1,focus:'',split:'auto',vr:0,rtOn:false});delete P().av;delete P().sub;save();tab='treino';render()")
     # 13. oráculo independente de regiões: escrito à mão (não lê EXM) a partir do que cada movimento exige do corpo.
-    ORC={'j':r"agachamento|leg press|afundo|passada|extensora|búlgaro|panturrilha|flexora",
-         'q':r"agachamento|leg press|afundo|passada|terra|stiff|ponte|elevação pélvica|elevação de pernas|búlgaro",
-         'l':r"terra|stiff|remada curvada|remada baixa|cavalinho|desenvolvimento|agachamento|leg press|ponte|elevação pélvica|prancha|abdominal|superman|elevação de pernas|afundo|passada|búlgaro|remada unilateral",
-         'o':r"supino|desenvolvimento|flexão|mergulho|crucifixo|elevação (lateral|frontal)|puxada|barra fixa|remada|prancha|tríceps testa|tríceps francês|pegada"}
+    ORC={'j':r"agachamento|leg press|afundo|passada|extensora|búlgaro|panturrilha|flexora|hack squat",
+         'q':r"agachamento|leg press|afundo|passada|terra|stiff|ponte|elevação pélvica|elevação de pernas|búlgaro|hack squat|glute drive|coice|abdutora|adutora",
+         'l':r"terra|stiff|remada curvada|remada baixa|cavalinho|desenvolvimento|agachamento|leg press|ponte|elevação pélvica|prancha|abdominal|superman|elevação de pernas|afundo|passada|búlgaro|remada unilateral|hack squat|glute drive|coice",
+         'o':r"supino|desenvolvimento|flexão|mergulho|crucifixo|elevação (lateral|frontal)|puxada|barra fixa|remada|prancha|tríceps testa|tríceps francês|pegada|peck deck|chest press"}
     r=pg.evaluate("""o=>{const bad=[];for(const [rg,rx] of Object.entries(o)){const re=new RegExp(rx,'i');for(const n of Object.keys(EX))if(re.test(n)&&!EXM[n].rg.includes(rg))bad.push(rg+':'+n)}return bad}""",ORC)
     A(r==[],f"metadados: todo exercício que o oráculo independente liga a uma região está marcado nela {r}")
     r=pg.evaluate("""o=>{const bad=[],p=P();Object.assign(p,{loc:'gym',exp:2,focus:'',split:'auto',vr:0});for(const [rg,rx] of Object.entries(o)){const re=new RegExp(rx,'i');for(const d of [2,4,6]){p.days=d;p.av={on:true,g:'hip',pr:[],dur:60,lim:[rg]};const R=PLN(p);
@@ -202,9 +202,10 @@ with sync_playwright() as p:
       p.sub={'A|<img src=x onerror=window.__x=5>':'<img src=x onerror=window.__x=6>'};save();tab='perfil';PFO.trn=true;render();tab='treino';render();tab='perfil';render();
       return new Promise(r=>setTimeout(()=>r({x:window.__x,img:document.querySelectorAll('#app img[src="x"]').length,sv:document.querySelectorAll('#app svg[onload]').length}),300))}""")
     A(r["x"]==0 and r["img"]==0 and r["sv"]==0,f"valores maliciosos em avaliação e substituição não executam nem viram elementos {r}")
-    # 26. estilos Premium continuam valendo e ignoram a avaliação (como na v89)
-    r=pg.evaluate("""()=>{const p=P(),o={};for(const st of ['ppl','ul','fb']){Object.assign(p,{loc:'gym',days:4,exp:1,focus:'',split:st,vr:0,rtOn:false});delete p.av;const a=JSON.stringify(plansFor(p).P);p.av={on:true,g:'for',pr:['Ombros'],dur:30,lim:['o'],cu:true};const b=JSON.stringify(plansFor(p).P);o[st]=a===b&&STY[st]?true:!STY[st]}return o}""")
-    A(all(r.values()),f"com estilo Premium escolhido, o plano é o do estilo (avaliação não o altera) {r}")
+    # 26. (v92) com estilo Premium escolhido e avaliação ligada, a avaliação personaliza o conteúdo e o estilo é mantido; desligada, plano da v89
+    r=pg.evaluate("""()=>{const p=P(),o={};for(const st of ['ppl','ul','fb']){Object.assign(p,{loc:'gym',days:4,exp:1,focus:'',split:st,vr:0,rtOn:false});delete p.av;const off=JSON.stringify(plansFor(p).P);p.av={on:true,g:'for',pr:['Ombros'],dur:30,lim:['o'],cu:true};const on=plansFor(p);
+      p.av={on:false,g:'for',pr:['Ombros']};const off2=JSON.stringify(plansFor(p).P);o[st]=off===off2&&JSON.stringify(on.P)!==off&&on.keys.length>=3&&!!on.why&&p.split===st}return o}""")
+    A(all(r.values()),f"estilo Premium + avaliação ligada personaliza e mantém o estilo; com avaliação desligada o plano é o de sempre {r}")
     # 27. persistência após salvar e recarregar mantém os mesmos exercícios
     r=pg.evaluate("""()=>{const p=P();Object.assign(p,{loc:'gym',days:5,exp:0,focus:'',split:'auto',vr:0,rtOn:false});delete p.sub;p.av={on:true,g:'hip',pr:['Glúteos'],dur:60};save();window.__snap=JSON.stringify(plansFor(p).P);localStorage.setItem('__t',window.__snap);return window.__snap.length}""")
     pg.reload()

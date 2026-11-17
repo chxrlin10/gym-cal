@@ -17,6 +17,7 @@ python3 tests/navegador/cadastro_e_treino.py # primeiro cadastro com um botão s
 python3 tests/navegador/foco_treino.py       # foco em pernas e glúteo: planos, tela e regras
 python3 tests/navegador/cardio_minimo.py     # cardio só conta como treino do dia a partir de 20 min
 python3 tests/navegador/planejador.py       # planejador por avaliação: regras, limites, compatibilidade e tela
+python3 tests/navegador/divisao_manual.py     # v92: avaliação com PPL/UL/FB escolhidos, Rafaela e Charles, catálogo novo, troca por equivalência, ciclo entre semanas
 ```
 
 Cada teste termina com `FALHAS: []` quando tudo passa. Para testar outro arquivo: `GYMCAL_HTML=/caminho/index.html python3 ...`.

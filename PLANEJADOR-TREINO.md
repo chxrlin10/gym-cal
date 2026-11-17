@@ -1,4 +1,4 @@
-# Planejador de treino do Gym.cal (v91)
+# Planejador de treino do Gym.cal (v92)
 
 Sistema **determinístico**: a mesma avaliação gera sempre o mesmo plano. Não usa IA generativa, sorteio, data nem rede. Cada escolha tem um motivo que aparece em Perfil › Preferências de treino › **Por que este plano?**.
 
@@ -68,3 +68,11 @@ Substituição por equivalente com pontuação, registro de esforço e execuçã
 - `EXM` é conservador: a ausência de região significa "não mapeado", nunca "seguro". O teste usa um oráculo independente.
 - Trocas manuais no plano da avaliação passam por `avOk`, mesmo músculo, sem duplicar e dentro do tempo.
 - Nada disso muda banco ou sincronização; `p.av` continua dentro do perfil.
+
+## O que mudou na v92: divisão escolhida à mão
+
+- Com a avaliação ligada, o estilo escolhido em Perfil (PPL, Superior/Inferior, Corpo inteiro, ABCDE, Arnold, Superior/Inferior/Corpo inteiro) continua valendo e a avaliação monta o conteúdo. O estilo é Premium como antes; sem assinatura vale o Automático e o estilo guardado não é apagado.
+- `FXK` (ciclo de cada estilo e faixa de dias) e `fxOf`. Volume por sessão = meta semanal ÷ (dias por semana ÷ tamanho do ciclo). Frequência e séries efetivas mostradas no "Por que este plano?" saem dos treinos entregues.
+- Híbrida (`HYB`, `p.av.hy`): só é oferecida, nunca aplicada sozinha. O botão está na tela de Preferências de treino.
+- Troca de exercício: `swAltT` ordena por equivalência (1, 2, 3) e `EQV` fixa os melhores pares (ex.: Supino reto → Chest Press). `VGA` agrupa variações para o planejador sem mexer em `VG`.
+- Novo exercício: entrada em `EX` (clonando um parecido), linha em `EXM`, grupo em `VGA`. O teste `divisao_manual.py` confere duplicata, metadados e que os antigos não mudaram.

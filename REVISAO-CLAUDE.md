@@ -1,3 +1,27 @@
+# Gym.cal v92 (1.4.0) — 17/11/2026
+
+**Base para qualquer mudança futura: este ZIP (v92).** Missão: a avaliação personalizada passa a valer também com a divisão escolhida à mão (PPL, Superior/Inferior, Corpo inteiro, ABCDE, Arnold, Superior/Inferior/Corpo inteiro). Antes, quem escolhia um estilo Premium perdia prioridades, volume e seleção de exercícios.
+
+**O que mudou**
+- `plansFor`: com a avaliação ligada, sempre usa `PLN(p)`. O estilo (`p.split`) continua mandando na divisão e **nunca é trocado em silêncio**. "Minha rotina" continua vencendo tudo, e sem assinatura o estilo continua sem valer (`styOf`, regras Premium inalteradas).
+- Divisão manual no motor: `FXK` define o ciclo de sessões de cada estilo (PPL = 6 treinos, UL = 4, etc.) e `fxOf` a faixa de dias em que faz sentido. O volume semanal é dividido pelo número real de treinos por semana (`dias ÷ tamanho do ciclo`), e a frequência é medida nos treinos entregues (ex.: PPL com 4 dias = 1,3 vez por semana). O app continua o ciclo de onde parou (`nextKey`), sem recomeçar na segunda.
+- Híbrida só com aceite: se o estilo não dá 2 vezes por semana para as prioridades (4 ou 5 dias), cai fora do intervalo de dias ou junta o mesmo grupo em dias seguidos, o plano mantém o estilo, explica e **oferece** uma alternativa (`HYB` ou a melhor automática). O botão "Usar divisão híbrida" grava `p.av.hy="estilo|dias"`; o aceite vale só para aquela combinação e dá para desfazer. Com 3 dias o PPL é mantido e o plano explica que alguns grupos treinam 1 vez por semana.
+- Catálogo: 19 exercícios novos (peito, costas, ombros e braços, glúteos e pernas), todos com `EXM`, `how` e grupo de variação. Os 68 antigos não foram renomeados nem alterados. Os novos entram só no planejador por avaliação e nas trocas; `VG` (usado por "Variar treino") não mudou, por isso os planos sem avaliação continuam idênticos.
+- Troca por equivalência (`swAltT`): 1 = mesmo músculo e padrão, 2 = padrão parecido, 3 = movimento diferente (aparece como "menos equivalente"). Supino reto → Chest Press na máquina é a primeira sugestão. Respeita equipamento, nível, limitações, exclusões e não duplica exercício nem variação na sessão.
+- `swDo`/`swAlt` agora respeitam a avaliação também com estilo manual.
+- `saveP`: valida o plano com o estilo que está sendo salvo; reinicia a sequência quando a avaliação muda o plano de qualquer estilo.
+
+**Catálogo: o que ficou de fora de propósito**
+- "Remada máquina com pegada neutra": já existe "Remada na máquina"; seria nome duplicado/ambíguo.
+- "Cadeira adutora": entra com músculo principal "Adutores", que não está nos 10 músculos do planejador. Serve para troca manual e rotina própria, mas o planejador automático não a escolhe.
+- As ilustrações dos novos reaproveitam a animação do exercício mais parecido (ex.: Coice usa a de hinge).
+
+**Testes**: `tests/navegador/divisao_manual.py` (novo) e ajustes em `planejador.py`. Um teste da v91 dizia que o estilo Premium *ignorava* a avaliação; isso mudou de propósito e foi reescrito (não foi enfraquecido). Novos snapshots: `planos_estilos_v89.json` (1080 planos de estilos gerados com o arquivo da v89) e `catalogo_v91.json` (68 exercícios antigos). O oráculo de regiões ganhou os exercícios novos e achou um erro meu (desenvolvimento na máquina sem "lombar").
+
+**Limites conhecidos**: "prefere exercícios simples" não existe como campo (o app só filtra por nível); a divisão de PPL com poucos dias deixa sessões de pernas longas (até ~22 séries); sem teste em aparelho real.
+
+---
+
 # Gym.cal v91 (1.3.0) — 17/11/2026
 
 **Base para qualquer mudança futura: este ZIP (v91).** Missão: corrigir, melhorar e validar o planejador da v90. Continua opcional e determinístico (sem IA, sem rede, sem sorteio). Sem avaliação ligada, o plano é idêntico ao da v89 (360 planos comparados com `tests/navegador/planos_v89.json`).
