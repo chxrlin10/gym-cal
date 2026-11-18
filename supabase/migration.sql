@@ -42,28 +42,46 @@ begin
  if n > 0 then raise exception 'Gym.cal: public.% tem % linha(s) de usuário que não existe mais em auth.users. Nada foi alterado.', t, n; end if;
 end $$;
 
--- Garante UNIQUE em user_id. Reaproveita PK, constraint ou índice único que já cubra exatamente (user_id).
+-- Chave única ADIÁVEL (DEFERRABLE) em user_id: o ON CONFLICT do apply_rc_snapshot não aceita. Aborta antes de mudar algo.
+create or replace function pg_temp.gc_nodefer(t text) returns void language plpgsql as $$
+declare rel regclass; att int2;
+begin
+ rel := to_regclass('public.'||t); if rel is null then return; end if;
+ select attnum into att from pg_attribute where attrelid=rel and attname='user_id' and not attisdropped;
+ if att is null then return; end if;
+ if exists (select 1 from pg_index i where i.indrelid=rel and i.indisunique and not i.indimmediate
+            and (string_to_array(i.indkey::text,' ')::int2[])[1:i.indnkeyatts] = array[att]) then
+  raise exception 'Gym.cal: public.% tem chave única adiável (DEFERRABLE) em user_id, que o ON CONFLICT não aceita. Nada foi alterado.', t;
+ end if;
+end $$;
+
+-- Garante UNIQUE imediato em user_id. Reaproveita PK, constraint ou índice único que já tenha (user_id) como chave
+-- (colunas extras de INCLUDE não contam).
 create or replace function pg_temp.gc_unique(t text, cname text) returns void language plpgsql as $$
 declare rel regclass := ('public.'||t)::regclass; att int2;
 begin
  select attnum into att from pg_attribute where attrelid=rel and attname='user_id' and not attisdropped;
- if exists (select 1 from pg_index i where i.indrelid=rel and i.indisunique and i.indisvalid and i.indpred is null
-            and i.indexprs is null and string_to_array(i.indkey::text,' ')::int2[] = array[att]) then return; end if;
+ if exists (select 1 from pg_index i where i.indrelid=rel and i.indisunique and i.indimmediate and i.indisvalid
+            and i.indpred is null and i.indexprs is null
+            and (string_to_array(i.indkey::text,' ')::int2[])[1:i.indnkeyatts] = array[att]) then return; end if;
  execute format('alter table public.%I add constraint %I unique (user_id)', t, cname);
 end $$;
 
--- Garante FK user_id -> auth.users(id) ON DELETE CASCADE. Só mexe em FKs da coluna user_id, e só se não estiverem certas.
+-- Garante FK user_id -> auth.users(id) ON DELETE CASCADE. Confere TODAS as FKs da coluna user_id: mantém as corretas,
+-- remove as incompatíveis (outra ação de exclusão ou outro destino, que travariam o CASCADE) e cria uma se não sobrar nenhuma.
 create or replace function pg_temp.gc_fk(t text, cname text) returns void language plpgsql as $$
-declare rel regclass := ('public.'||t)::regclass; att int2; uid int2; c record;
+declare rel regclass := ('public.'||t)::regclass; att int2; uid int2; c record; ok boolean := false;
 begin
  select attnum into att from pg_attribute where attrelid=rel and attname='user_id' and not attisdropped;
  select attnum into uid from pg_attribute where attrelid='auth.users'::regclass and attname='id';
- if exists (select 1 from pg_constraint where conrelid=rel and contype='f' and conkey=array[att]
-            and confrelid='auth.users'::regclass and confkey=array[uid] and confdeltype='c') then return; end if;
- for c in select conname from pg_constraint where conrelid=rel and contype='f' and conkey=array[att] loop
-  execute format('alter table public.%I drop constraint %I', t, c.conname);
+ for c in select conname, (confrelid='auth.users'::regclass and confkey=array[uid] and confdeltype='c') as good
+          from pg_constraint where conrelid=rel and contype='f' and conkey=array[att] loop
+  if c.good and not ok then ok := true;
+  else execute format('alter table public.%I drop constraint %I', t, c.conname); end if;
  end loop;
- execute format('alter table public.%I add constraint %I foreign key (user_id) references auth.users(id) on delete cascade', t, cname);
+ if not ok then
+  execute format('alter table public.%I add constraint %I foreign key (user_id) references auth.users(id) on delete cascade', t, cname);
+ end if;
 end $$;
 
 -- 1. Conferência do que já existe (só leitura; aborta se algo não bater).
@@ -85,6 +103,9 @@ do $$ begin
  perform pg_temp.gc_col('account_deletions','user_id','uuid',true);
  perform pg_temp.gc_col('account_deletions','requested_at','timestamp with time zone',false);
  perform pg_temp.gc_rows('account_deletions');
+ perform pg_temp.gc_nodefer('user_data');
+ perform pg_temp.gc_nodefer('entitlements');
+ perform pg_temp.gc_nodefer('account_deletions');
 end $$;
 
 -- 2. Tabelas que faltam (as que já existem ficam como estão e são ajustadas abaixo).
