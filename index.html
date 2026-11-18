@@ -314,6 +314,7 @@ details.gd{padding:0}details.gd>summary{padding:16px;min-height:60px;font-size:1
 .gtp strong{font-size:16px}.gtp small{color:var(--mut);font-size:13px}
 
 .x,.ib{min-width:44px;min-height:44px}.seg button{min-height:44px}
+.ferr{color:var(--or);font-weight:600;font-size:14px;margin:8px 0 0}.ferr:empty{display:none}input[aria-invalid="true"]{border-color:var(--or)!important;box-shadow:0 0 0 2px var(--or)}
 </style></head><body>
 <header id="hd"></header><main id="app"></main><nav class="tabs" id="tabs" aria-label="Seções"></nav><div id="trdock" role="region" aria-label="Ação do treino" hidden></div>
 <script>
@@ -781,9 +782,26 @@ const allF=()=>FOODS.concat((S.custom||[]).map((c,j)=>({i:FOODS.length+j,n:c.n+"
 const FD=i=>allF()[i];
 function addCard(m){m=m||MEALS[mealNow()];fsel=null;const fv=(P().fav||[]);return `<div class="addp"><input id="fm" type="hidden" value="${esc(m)}"><div class="row sp" style="margin-bottom:4px"><b>Adicionar em ${esc(m.toLowerCase())}</b><button class="lk" style="margin:0" onclick="amSet(-1)">Fechar</button></div>${fv.length?`<div class="mut" style="margin:6px 0">Favoritos</div>`+fv.map((x,j)=>`<button class="fr" onclick="favAdd(${j})"><span>${ico(x.cat||"O",18)}${esc(x.n)}</span><span class="mut">${esc(x.k)} kcal</span></button>`).join(""):""}<label for="fsq">Buscar alimento</label><input id="fsq" type="search" oninput="fsearch()" placeholder="Ex.: melão, pão, frango" autocomplete="off"><div id="fres"></div><div id="fsel"></div>
  <div style="margin-top:14px"><label for="bcn">Código de barras</label><div class="row" style="gap:8px;flex-wrap:nowrap"><input id="bcn" type="number" inputmode="numeric" placeholder="Digite os números do código"><button class="btn s" style="margin:0;width:auto" onclick="bcGo()">Buscar</button></div>${BD?`<button class="btn s" style="margin-top:8px" onclick="bcScan()">Escanear com a câmera</button>`:""}<div id="bcm" class="mut" role="status" style="margin-top:6px"></div></div>
- <details style="margin-top:14px"><summary>Não achou? Cadastre pelo rótulo</summary><div class="mut" style="margin-top:8px">Copie os valores da tabela nutricional, da coluna "por porção".</div><label for="cn">Nome</label><input id="cn"><div class="grid3"><div><label for="cs">Porção (g)</label><input id="cs" type="number" inputmode="decimal" value="100"></div><div><label for="ck">Calorias</label><input id="ck" type="number" inputmode="decimal"></div><div><label for="cq">Porções comidas</label><input id="cq" type="number" inputmode="decimal" step="0.25" value="1"></div></div><div class="grid3"><div><label for="cp">Proteína (g)</label><input id="cp" type="number" inputmode="decimal"></div><div><label for="cc">Carbo (g)</label><input id="cc" type="number" inputmode="decimal"></div><div><label for="cf">Gordura (g)</label><input id="cf" type="number" inputmode="decimal"></div></div><div class="grid3"><div><label for="cb">Fibra (g)</label><input id="cb" type="number" inputmode="decimal"></div><div style="grid-column:span 2"><label for="ct">Tipo</label><select id="ct">${CATS.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("")}</select></div></div><label class="chk" style="margin-top:12px"><input id="csv" type="checkbox" checked> Salvar para usar de novo</label><button class="btn s" onclick="addC()">Adicionar ao diário</button></details></div>`}
-function addC(){const n=$("#cn").value.trim().slice(0,120),kv=$("#ck").value;if(!n||kv==="")return;const fields=["cs","ck","cq","cp","cc","cf","cb"],vals=fields.map(k=>$("#"+k).value===""?0:Number($("#"+k).value));
- if(vals.some(x=>!Number.isFinite(x)||x<0||x>100000)||vals[0]<=0||vals[2]<=0||vals[0]>100000||vals[2]>10000){alert("Informe porção e quantidade maiores que zero e nutrientes/calorias não negativos.");return}const por=+$("#cs").value||100,q=+$("#cq").value||1,v=x=>(+$("#"+x).value||0)*100/por,c={n,por,k:+kv*100/por,p:v("cp"),c:v("cc"),f:v("cf"),fb:v("cb"),cat:$("#ct").value},gr=q*por;
+ <details style="margin-top:14px"><summary>Não achou? Cadastre pelo rótulo</summary><div class="mut" style="margin-top:8px">Copie os valores da tabela nutricional, da coluna "por porção".</div><label for="cn">Nome</label><input id="cn"><div class="grid3"><div><label for="cs">Porção (g)</label><input id="cs" type="number" inputmode="decimal" value="100"></div><div><label for="ck">Calorias</label><input id="ck" type="number" inputmode="decimal"></div><div><label for="cq">Porções comidas</label><input id="cq" type="number" inputmode="decimal" step="0.25" value="1"></div></div><div class="grid3"><div><label for="cp">Proteína (g)</label><input id="cp" type="number" inputmode="decimal"></div><div><label for="cc">Carbo (g)</label><input id="cc" type="number" inputmode="decimal"></div><div><label for="cf">Gordura (g)</label><input id="cf" type="number" inputmode="decimal"></div></div><div class="grid3"><div><label for="cb">Fibra (g)</label><input id="cb" type="number" inputmode="decimal"></div><div style="grid-column:span 2"><label for="ct">Tipo</label><select id="ct">${CATS.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("")}</select></div></div><label class="chk" style="margin-top:12px"><input id="csv" type="checkbox" checked> Salvar para usar de novo</label><p id="cerr" class="ferr" role="alert"></p><button class="btn s" onclick="addC()">Adicionar ao diário</button></details></div>`}
+/* Cadastro pelo rótulo: limites realistas, erro no próprio campo e confirmação quando calorias e macros não batem. */
+let cOk="";
+const inv=(f,on)=>{try{if(f)on?f.setAttribute("aria-invalid","true"):f.removeAttribute("aria-invalid")}catch(e){}};
+function addC(){const CF=["cn","cs","ck","cq","cp","cc","cf","cb"],E=$("#cerr"),num=k=>$("#"+k).value===""?null:Number($("#"+k).value);
+ const say=(t,bad)=>{CF.forEach(k=>inv($("#"+k),0));if(E)E.textContent=t;(bad||[]).forEach(k=>inv($("#"+k),1));const f0=bad&&bad.length&&$("#"+bad[0]);try{if(f0)f0.focus()}catch(e){}};
+ const n=$("#cn").value.trim().slice(0,120),por=num("cs"),kv=num("ck"),q=num("cq"),mp=num("cp")||0,mc=num("cc")||0,mf=num("cf")||0,mb=num("cb")||0;
+ if(!n)return say("Digite o nome do alimento.",["cn"]);
+ if(por==null||!(por>=1&&por<=2000))return say("A porção precisa estar entre 1 e 2000 g.",["cs"]);
+ if(kv==null)return say("Digite as calorias da porção.",["ck"]);
+ const neg=["ck","cp","cc","cf","cb"].filter(k=>{const x=num(k);return x!=null&&!(Number.isFinite(x)&&x>=0)});
+ if(neg.length)return say("Calorias e nutrientes não podem ser negativos.",neg);
+ if(q==null||!(q>=0.25&&q<=20))return say("Porções comidas: de 0,25 a 20.",["cq"]);
+ const k100=kv*100/por,g100=(mp+mc+mf+mb)*100/por;
+ if(k100>900)return say("Isso daria mais de 900 kcal a cada 100 g, o que nenhum alimento tem (nem o óleo). Confira as calorias e o tamanho da porção.",["ck","cs"]);
+ if(g100>105)return say("Proteína, carbo, gordura e fibra somam mais do que o peso da porção. Confira os valores do rótulo.",["cp","cc","cf","cb"]);
+ const est=4*mp+4*mc+9*mf+2*mb,sig=[n,por,kv,q,mp,mc,mf,mb].join("|");
+ if(est>0&&Math.abs(est-kv)>Math.max(25,.25*Math.max(est,kv))&&cOk!==sig){cOk=sig;return say(`As calorias não batem com os macros: pelos macros dariam cerca de ${R(est)} kcal. Confira o rótulo. Se estiver certo, toque em Adicionar de novo.`,["ck"])}
+ cOk="";say("");
+ const v=x=>x*100/por,c={n,por,k:k100,p:v(mp),c:v(mc),f:v(mf),fb:v(mb),cat:$("#ct").value},gr=q*por;
  if($("#csv").checked)(S.custom=S.custom||[]).push(c);
  push({m:$("#fm").value,n:n+" · "+fq(q)+" × porção ("+por+" g)",k:R(c.k*gr/100),p:R(c.p*gr/100),c:R(c.c*gr/100),f:R(c.f*gr/100),g:R(gr),fb:Math.round(c.fb*gr/10)/10,cat:c.cat})}
 
@@ -875,11 +893,12 @@ function fpanel(){const f=FD(fsel),po=fpo(f);$("#fsel").innerHTML=`<div class="f
  <div id="fpv" class="note" style="margin:10px 0 0" role="status"></div><button class="btn" onclick="addF()">Adicionar ao diário</button></div>`;fset()}
 function fset(inp){const f=FD(fsel),po=fpo(f),sel=+$("#fpo").value;
  if(sel!==fpi){fpi=sel;fam=po[sel][1]===1?100:1;$("#fam").value=fam}else if(inp)fam=+$("#fam").value||0;
- const g=po[sel][1],gr=fam*g;
+ const g=po[sel][1],gr=fam*g;if(gr>0&&gr<=FMAX)inv($("#fam"),0);
  $("#chips").innerHTML=g===1?"":AMTS.map(([v,l])=>`<button class="chp ${v===fam?"on":""}" onclick="fchip(${v})">${l}</button>`).join("");
- $("#fpv").innerHTML=gr>0?`≈ ${R(gr)} g · <b>${R(f.k*gr/100)} kcal</b><br><span class="mut">Proteína ${r1(f.p*gr/100)} g · Carbo ${r1(f.c*gr/100)} g · Gordura ${r1(f.f*gr/100)} g</span>`:"Informe a quantidade."}
+ $("#fpv").innerHTML=gr>FMAX?`Quantidade alta demais pra um registro (máximo ${FMAX/1000} kg). Divida em mais de um lançamento.`:gr>0?`≈ ${R(gr)} g · <b>${R(f.k*gr/100)} kcal</b><br><span class="mut">Proteína ${r1(f.p*gr/100)} g · Carbo ${r1(f.c*gr/100)} g · Gordura ${r1(f.f*gr/100)} g</span>`:"Informe a quantidade."}
 function fchip(v){fam=v;$("#fam").value=v;fset()}
-function addF(){const f=FD(fsel);if(!f)return;const u=fpo(f)[fpi],gr=fam*u[1];if(!(gr>0))return;push({m:$("#fm").value,n:f.n+" · "+(u[1]===1?R(gr)+" g":fq(fam)+" × "+u[0]),k:R(f.k*gr/100),p:R(f.p*gr/100),c:R(f.c*gr/100),f:R(f.f*gr/100),g:R(gr),fb:Math.round((f.fb||0)*gr/10)/10,cat:f.cat||"O"})}
+const FMAX=3000;
+function addF(){const f=FD(fsel);if(!f)return;const u=fpo(f)[fpi],gr=fam*u[1];if(!(gr>0&&gr<=FMAX)){const a=$("#fam");inv(a,1);try{if(a)a.focus()}catch(e){}return}push({m:$("#fm").value,n:f.n+" · "+(u[1]===1?R(gr)+" g":fq(fam)+" × "+u[0]),k:R(f.k*gr/100),p:R(f.p*gr/100),c:R(f.c*gr/100),f:R(f.f*gr/100),g:R(gr),fb:Math.round((f.fb||0)*gr/10)/10,cat:f.cat||"O"})}
 const MUS=["Peitoral","Ombros","Tríceps","Costas","Trapézio","Bíceps","Antebraço","Quadríceps","Glúteos","Posterior de coxa","Panturrilha","Abdômen","Lombar"];
 const MAIN=["Peitoral","Costas","Ombros","Bíceps","Tríceps","Quadríceps","Posterior de coxa","Glúteos","Panturrilha","Abdômen"];
 const SH="M28 52C36 48 46 52 48 62C48 70 44 76 40 78C34 72 30 64 28 52Z",FA="M44 116C50 116 54 124 54 136L52 164C48 166 44 164 42 160C40 144 42 126 44 116Z",CF="M5 206C12 202 22 204 23 214C23 226 20 236 16 244C10 244 7 238 6 228Z";
