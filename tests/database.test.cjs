@@ -18,5 +18,26 @@ await db.exec(`reset role;set role authenticated;set request.jwt.claim.sub='${A}
 await test('Pending deletion prevents new uploads',async()=>{await assert.rejects(db.query('update public.user_data set data=$1 where user_id=$2',[{},A]))});
 await db.exec('reset role;');
 await test('Deleting auth user cascades app data',async()=>{await db.query('delete from auth.users where id=$1',[A]);for(const table of ['user_data','entitlements','account_deletions'])assert.equal((await db.query('select * from public.'+table+' where user_id=$1',[A])).rows.length,0)});
-await db.close();console.log(`${n} database tests passed on isolated PostgreSQL/WASM (not the deployed Supabase project).`);
+await db.close();
+// Banco de produção já existente: tabelas antigas, com estrutura e políticas desconhecidas.
+const fresh=async()=>{const d=await PGlite.create();await d.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;grant usage on schema auth,public to anon,authenticated,service_role;insert into auth.users values('${A}'),('${B}');`);return d};
+const one=async(d,q,p)=>(await d.query(q,p)).rows;
+await test('Legacy compatible schema is upgraded in place without losing rows',async()=>{const d=await fresh();
+ await d.exec(`create table public.user_data(user_id uuid not null references auth.users(id),data jsonb,updated_at timestamptz default now());create unique index old_uid on public.user_data(user_id);
+ create table public.entitlements(user_id uuid references auth.users(id),active boolean default false,product text,expires_at timestamptz,source text,updated_at timestamptz default now());
+ alter table public.user_data enable row level security;create policy open_all on public.user_data for all using(true) with check(true);
+ insert into public.user_data(user_id,data) values('${A}','{"x":1}');insert into public.entitlements(user_id,active) values('${B}',true);`);
+ await d.exec(sql);await d.exec(sql);
+ assert.equal((await one(d,'select * from public.user_data')).length,1);assert.equal((await one(d,'select * from public.entitlements')).length,1);
+ assert.equal((await one(d,"select 1 from pg_policies where policyname='open_all'")).length,0,'old permissive policy removed');
+ for(const t of ['user_data','entitlements','account_deletions']){const fk=await one(d,`select confdeltype from pg_constraint where conrelid='public.${t}'::regclass and contype='f'`);assert.deepEqual(fk.map(x=>x.confdeltype),['c'],t+' has exactly one cascading FK')}
+ assert.equal((await one(d,"select 1 from pg_constraint where conname='gymcal_user_data_user_key'")).length,0,'equivalent unique index reused');
+ await d.exec('set role service_role;');await d.query("select public.apply_rc_snapshot($1,false,'monthly',now(),now())",[B]);await d.query("select public.apply_rc_snapshot($1,true,'monthly',now()+interval '1 day',now()+interval '1 second')",[B]);await d.exec('reset role;');
+ assert.equal((await one(d,'select active from public.entitlements where user_id=$1',[B])).length,1,'RPC upserts on the legacy table');
+ await d.query('delete from auth.users where id=$1',[A]);assert.equal((await one(d,'select * from public.user_data')).length,0,'cascade from auth.users');await d.close()});
+const aborts=async(setup,re)=>{const d=await fresh();await d.exec(setup);await assert.rejects(d.exec(sql),re);await d.exec('rollback');assert.equal((await one(d,"select to_regclass('public.account_deletions') as t"))[0].t,null,'nothing applied');await d.close()};
+await test('Duplicate user_id in legacy entitlements aborts and changes nothing',()=>aborts(`create table public.entitlements(user_id uuid,active boolean);insert into public.entitlements values('${A}',true),('${A}',false);`,/repetido/));
+await test('Orphan legacy rows abort and change nothing',()=>aborts(`create table public.user_data(user_id uuid,data jsonb);insert into public.user_data values('33333333-3333-4333-8333-333333333333','{}');`,/não existe mais/));
+await test('Legacy column with another type aborts and changes nothing',()=>aborts(`create table public.user_data(user_id text,data jsonb);`,/tipo text/));
+console.log(`${n} database tests passed on isolated PostgreSQL/WASM (not the deployed Supabase project).`);
 })().catch(e=>{console.error(e);process.exitCode=1});
