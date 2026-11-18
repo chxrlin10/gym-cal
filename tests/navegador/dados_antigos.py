@@ -26,10 +26,10 @@ with sync_playwright() as p:
     # backup antigo com cardio 400 min é aceito; malicioso continua recusado
     pg.evaluate("s=>{localStorage.clear();localStorage.setItem('gymcal2',s)}",base);pg.reload();pg.evaluate("document.getElementById('sdo')&&sdClose();PFO.bak=true;tab='perfil';render()")
     old=json.loads(base);pid=old["people"][0]["id"];old["cardio"][pid]={list(old["log"][pid].keys())[0]:[{"n":"Corrida","min":400,"k":900}]};old["people"][0]["name"]="Antigo"
-    pg.fill("#bk",json.dumps(old));pg.click("button:text-is('Restaurar')");pg.wait_for_timeout(200)
+    pg.fill("#bk",json.dumps(old));pg.click("button:text-is('Restaurar')");pg.click("button:text-is('Restaurar')");pg.wait_for_timeout(200)
     A(pg.evaluate("S.people[0].name")=="Antigo","backup antigo fora do padrão é restaurado")
     bad=json.loads(base);bad["people"][0]["w"]="<img src=x onerror=alert(1)>";pg.evaluate("PFO.bak=true;render()");st=pg.evaluate("JSON.stringify(S)")
-    pg.fill("#bk",json.dumps(bad));pg.click("button:text-is('Restaurar')");pg.wait_for_timeout(200)
+    pg.fill("#bk",json.dumps(bad));pg.click("button:text-is('Restaurar')");pg.click("button:text-is('Restaurar')");pg.wait_for_timeout(200)
     A(pg.evaluate("JSON.stringify(S)")==st,"backup malicioso continua recusado")
     A(not errs,"sem erros JS "+str(errs[:2]))
 print("FALHAS:",F)

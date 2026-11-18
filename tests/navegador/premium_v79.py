@@ -62,12 +62,12 @@ with sync_playwright() as p:
     # backup
     pg.evaluate("PFO.bak=true;tab='perfil';render()");pg.click("text=Gerar backup");bk=pg.input_value("#bk")
     pg.evaluate("S.people[0].recipes=[];S.people[0].mealSwaps=[];delete S.people[0].weekFocus;save()")
-    pg.evaluate("PFO.bak=true;render()");pg.fill("#bk",bk);pg.click("button:text-is('Restaurar')");pg.wait_for_timeout(200)
+    pg.evaluate("PFO.bak=true;render()");pg.fill("#bk",bk);pg.click("button:text-is('Restaurar')");pg.click("button:text-is('Restaurar')");pg.wait_for_timeout(200)
     got=pg.evaluate("JSON.stringify({r:S.people[0].recipes,s:S.people[0].mealSwaps,f:S.people[0].weekFocus})")
     if got!=snap:print("DBG",pg.input_value("#bk")[:200],"\n",got[:300],"\n",snap[:300])
     A(got==snap,"B1 backup restaura receitas, trocas e foco")
     pg.evaluate("PFO.bak=true;tab='perfil';render()");bad=json.loads(bk);bad["people"][0]["recipes"][0]["yield"]="<img src=x onerror=alert(1)>"
-    st0=pg.evaluate("JSON.stringify(S)");pg.fill("#bk",json.dumps(bad));pg.click("button:text-is('Restaurar')");pg.wait_for_timeout(200)
+    st0=pg.evaluate("JSON.stringify(S)");pg.fill("#bk",json.dumps(bad));pg.click("button:text-is('Restaurar')");pg.click("button:text-is('Restaurar')");pg.wait_for_timeout(200)
     A(pg.evaluate("JSON.stringify(S)")==st0,"B2 backup malicioso rejeitado sem mudar nada")
     A(not errs,"sem erros JS "+str(errs[:2]));pg.close()
     # expiracao: cobranca ligada, Premium vencido

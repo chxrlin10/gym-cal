@@ -56,9 +56,9 @@ with sync_playwright() as p:
     d2.evaluate("window._failKey=null");sync(d2);A("Pera" in loc(d2),"depois entra normalmente")
     # restaurar um backup desta conta sem espaço para guardar a cópia atual
     bk=d2.evaluate("(()=>{const c=JSON.parse(JSON.stringify(S)),l=c.log[pid()];(l[dayKey()]=l[dayKey()]||[]).push({m:'Almoço',n:'Do backup',k:10,p:1,c:1,f:1});c._bk={uid:A.uid};return JSON.stringify(c)})()");st0=d2.evaluate("JSON.stringify(S)");d2.evaluate("window._failKey='gymcal_stash';PFO.bak=true;tab='perfil';render()")
-    d2.fill("#bk",bk);d2.click("button:text-is('Restaurar')");d2.wait_for_timeout(200)
+    d2.fill("#bk",bk);d2.click("button:text-is('Restaurar')");d2.click("button:text-is('Restaurar')");d2.wait_for_timeout(200)
     A(d2.evaluate("JSON.stringify(S)")==st0 and "Do backup" not in loc(d2),"restaurar sem espaço para cópia: não mexe em nada");d2.evaluate("window._failKey=null")
-    d2.fill("#bk",bk);d2.click("button:text-is('Restaurar')");d2.wait_for_timeout(200);A("Do backup" in loc(d2),"com espaço: o backup é restaurado")
+    d2.fill("#bk",bk);d2.click("button:text-is('Restaurar')");d2.click("button:text-is('Restaurar')");d2.wait_for_timeout(200);A("Do backup" in loc(d2),"com espaço: o backup é restaurado")
     # ---------- rede ----------
     srv.fail=True;add(d1,"Uva");d1.wait_for_timeout(3600)
     A("Uva" in loc(d1) and "Uva" not in srvn(srv,uid) and "Sem conexão" in d1.evaluate("cl.st"),"sem rede: fica no aparelho e avisa")
