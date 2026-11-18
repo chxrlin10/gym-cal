@@ -4,6 +4,11 @@ const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return new Response("method", { status: 405, headers: cors });
+  // Configuração conferida ANTES de marcar a exclusão. Antes, sem RC_SECRET_KEY nem RC_ENABLED=false, a função
+  // gravava a pendência e só depois falhava: o usuário ficava bloqueado para novos envios sem a conta ser apagada.
+  const rcKey = Deno.env.get("RC_SECRET_KEY"), billingOff = Deno.env.get("RC_ENABLED") === "false";
+  if (!Deno.env.get("SUPABASE_URL") || !Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || (!rcKey && !billingOff))
+    return new Response("Deletion unavailable: server not configured; nothing was changed", { status: 503, headers: cors });
   try {
     const token = (req.headers.get("Authorization") || "").replace(/^Bearer /, "");
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -13,11 +18,9 @@ Deno.serve(async (req) => {
     // Mark first: failed/retried requests cannot re-upload or re-grant Premium.
     const mark = await admin.from("account_deletions").upsert({ user_id: uid });
     if (mark.error) throw mark.error;
-    if (Deno.env.get("RC_SECRET_KEY")) {
+    if (rcKey) {
       const rc = await rcRequest(uid, "DELETE");
       if (!rc.ok && rc.status !== 404) throw new Error("Provider deletion pending");
-    } else if (Deno.env.get("RC_ENABLED") !== "false") {
-      throw new Error("Set RC_SECRET_KEY or explicitly disable billing on server");
     }
     // Requires the CASCADE FKs supplied in migration.sql. No prior user_data DELETE.
     const del = await admin.auth.admin.deleteUser(uid);
