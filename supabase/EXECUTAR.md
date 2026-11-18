@@ -5,13 +5,15 @@ Se possível, teste antes num projeto de homologação.
 
 ## 1. Backup
 1. Table Editor → `user_data` → Export → CSV. Repita com `entitlements`. Guarde em lugar privado: são dados de saúde.
-2. SQL Editor → cópia dentro do banco, num schema que a API não expõe:
+2. SQL Editor → cópia dentro do banco, num schema novo que a API não expõe. Troque `AAAAMMDD` pela data de hoje.
+   O `create schema` sem `if not exists` é de propósito: se o nome já existir, ele falha em vez de misturar com outro backup.
    ```sql
-   create schema if not exists backup;
-   create table backup.user_data_AAAAMMDD as table public.user_data;
-   create table backup.entitlements_AAAAMMDD as table public.entitlements;
+   create schema backup_gymcal_AAAAMMDD;
+   create table backup_gymcal_AAAAMMDD.user_data as table public.user_data;
+   create table backup_gymcal_AAAAMMDD.entitlements as table public.entitlements;
    ```
-   **Apague o schema `backup` depois que a migração for validada** (item 8): `drop schema backup cascade;`
+   **Apague SÓ esse schema depois que a migração for validada** (item 8): `drop schema backup_gymcal_AAAAMMDD cascade;`
+   Confira o nome antes: o `cascade` apaga tudo o que estiver dentro dele.
 
 ## 2. Diagnóstico (só leitura)
 Rode a consulta de diagnóstico do AUDITORIA.md e confira a estrutura atual antes de seguir.
@@ -54,7 +56,7 @@ O template de e-mail com ConfirmationURL precisa preservar `redirect_to`; outra 
 - Exclusão de conta pelo app: precisa responder ok e apagar em CASCADE as três tabelas. Tentar enviar dados durante e depois da exclusão: nada pode reaparecer.
 - Com cobrança ligada, simular falha do RevenueCat durante a exclusão: o registro em account_deletions bloqueia novos envios e os dados ficam até concluir. O usuário repete a exclusão; o suporte acompanha as pendências.
 
-Tudo certo? **Apague o schema `backup`** (item 1).
+Tudo certo? **Apague o schema `backup_gymcal_AAAAMMDD`** criado no item 1, e só ele.
 
 ## 9. Webhook do RevenueCat (só quando a cobrança for ligada)
 Configure o webhook **depois** que a função estiver publicada e o item 8 passar: URL da função + o segredo do item 3.
