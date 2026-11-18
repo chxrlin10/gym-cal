@@ -1,25 +1,65 @@
-# Supabase — implantação v77 (ainda não executada no projeto real)
+# Supabase — implantação v93 (ainda não executada no projeto real)
 
-1. Faça backup do banco e exporte os dados do app. Teste primeiro em projeto de homologação.
-2. Execute **migration.sql inteiro**. Ele cria/configura user_data, entitlements, account_deletions, RLS e a RPC de reconciliação. Substitui as políticas anteriores dessas três tabelas; não remove registros. Duplicatas/órfãos fazem a transação falhar: inspecione, não apague automaticamente.
-3. Execute verify_rls.sql e guarde o resultado. user_data: apenas próprio UUID; entitlements: leitura própria, escrita só service_role; account_deletions: leitura própria, escrita só service_role; RPC não executável por anon/authenticated.
-4. Publique as duas funções, incluindo a pasta `_shared`. `config.toml` define verify_jwt=false; ambas fazem sua própria autenticação.
-5. Configure secrets do servidor:
-   - RC_WEBHOOK_SECRET: segredo longo, igual ao Authorization `Bearer ...` do webhook.
-   - RC_SECRET_KEY: chave **secreta de API v1** do projeto RevenueCat, com acesso de leitura/exclusão de clientes. Nunca colar no HTML/GitHub.
-   - RC_APP_ID: identificador do aplicativo no RevenueCat (não é o package Android).
-   - RC_ENVIRONMENT: PRODUCTION; para homologação isolada, SANDBOX. Não misture testes e produção na mesma base.
-   - RC_ENABLED: true quando cobrança estiver habilitada. Enquanto não houver RevenueCat/cobrança, defina explicitamente false para permitir exclusão sem esse fornecedor. Quando há RC_SECRET_KEY, a exclusão o consulta mesmo com RC_ENABLED=false.
-6. Publique recuperar-senha.html no GitHub Pages. Adicione `https://chxrlin10.github.io/gym-cal/recuperar-senha.html` à lista de Redirect URLs do Supabase. O template padrão com ConfirmationURL deve preservar redirect_to; alternativamente use link token_hash/type=recovery para essa página. Teste em um e-mail real e confira SMTP/entrega.
-7. Configure webhook no RevenueCat com a URL da função e o segredo do item 5. TEST retorna 200 sem gravar assinatura; testar compras reais de licença é necessário para confirmar todo o caminho.
+O app publicado no GitHub Pages já usa esta estrutura. Faça tudo numa sequência só, num horário de pouco uso.
+Se possível, teste antes num projeto de homologação.
 
-## Testes obrigatórios com duas contas
-- JWT de A: ler/escrever apenas A. GET de B não retorna dados; POST/PATCH com UUID B é negado. Anônimo não acessa as tabelas. Authenticated não escreve entitlements nem chama apply_rc_snapshot.
+## 1. Backup
+1. Table Editor → `user_data` → Export → CSV. Repita com `entitlements`. Guarde em lugar privado: são dados de saúde.
+2. SQL Editor → cópia dentro do banco, num schema que a API não expõe:
+   ```sql
+   create schema if not exists backup;
+   create table backup.user_data_AAAAMMDD as table public.user_data;
+   create table backup.entitlements_AAAAMMDD as table public.entitlements;
+   ```
+   **Apague o schema `backup` depois que a migração for validada** (item 8): `drop schema backup cascade;`
+
+## 2. Diagnóstico (só leitura)
+Rode a consulta de diagnóstico do AUDITORIA.md e confira a estrutura atual antes de seguir.
+A migração já aborta sozinha se encontrar algo incompatível, mas é melhor saber antes.
+
+## 3. Secrets ANTES de publicar as funções
+Edge Functions → Secrets. `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` já existem por padrão.
+- `RC_ENABLED`: **`false` enquanto não houver cobrança**. Sem isso e sem `RC_SECRET_KEY`, a exclusão de conta responde 503 sem mudar nada.
+- Só quando a cobrança for ligada:
+  - `RC_SECRET_KEY`: chave **secreta de API v1** do RevenueCat (leitura e exclusão de clientes). Nunca no HTML nem no GitHub. Com ela, a exclusão também remove o cliente no RevenueCat.
+  - `RC_WEBHOOK_SECRET`: segredo longo, igual ao `Authorization: Bearer ...` configurado no webhook.
+  - `RC_APP_ID`: identificador do app no RevenueCat (não é o package Android).
+  - `RC_ENVIRONMENT`: `PRODUCTION`, ou `SANDBOX` num projeto de homologação isolado. Não misture os dois na mesma base.
+
+## 4. Migração
+SQL Editor → cole **migration.sql inteiro** → Run.
+- Ela confere a estrutura e os dados existentes antes de mudar qualquer coisa. Se algo não bater (user_id repetido ou nulo, linha de usuário que não existe mais, coluna com outro tipo), aborta com uma mensagem começando por `Gym.cal:`.
+- **Se der qualquer erro:** rode `rollback;`, copie a mensagem e pare. Nada foi alterado (é tudo uma transação só).
+- Se aparecer erro de `lock_timeout`, algum acesso estava usando a tabela: espere alguns segundos, rode `rollback;` e tente de novo.
+- Não apaga linhas. Troca as policies dessas três tabelas pelas do app (inclusive as permissivas feitas à mão).
+
+## 5. Conferência
+Rode `verify_rls.sql` e guarde o resultado. Esperado:
+- `user_data`: só o próprio UUID;
+- `entitlements` e `account_deletions`: leitura própria, escrita só pelo service_role;
+- `apply_rc_snapshot`: `false` para anon e authenticated.
+
+## 6. Publicar as funções, logo depois da migração
+Publique `delete-account` e `revenuecat-webhook` com a pasta `_shared`. O `config.toml` define `verify_jwt=false`, porque as duas fazem a própria autenticação.
+Até este passo, continua no ar a versão antiga e desconhecida de `delete-account`, por isso não deixe intervalo entre os itens 4 e 6.
+
+## 7. Recuperação de senha
+Adicione `https://chxrlin10.github.io/gym-cal/recuperar-senha.html` às Redirect URLs (Authentication → URL Configuration).
+O template de e-mail com ConfirmationURL precisa preservar `redirect_to`; outra opção é um link `token_hash`/`type=recovery` para essa página. Teste com um e-mail real e confira a entrega (SMTP).
+
+## 8. Testes obrigatórios com duas contas (validação)
+- JWT de A lê e escreve apenas A. GET de B não retorna dados; POST/PATCH com o UUID de B é negado. Anônimo não acessa as tabelas. Authenticated não escreve entitlements nem chama apply_rc_snapshot.
 - A em dois aparelhos: alterações independentes; exclusão de refeição versus nova refeição; conflito simultâneo; modo avião; retomada.
-- B sem backup no aparelho de A: editar antes de responder à pergunta NÃO pode enviar dados. Só confirmar explicitamente autoriza.
-- Exclusão: tentar upload durante/depois da exclusão; nada deve reaparecer. Excluir usuário deve fazer CASCADE nas três tabelas.
-- Simular falha do RevenueCat durante exclusão: registro account_deletions bloqueia novos uploads; dados Supabase permanecem até concluir. Usuário deve repetir a exclusão; suporte deve acompanhar pendências, não esquecê-las.
-- Repetir webhook e inverter ordem de eventos. A função consulta o estado atual; a RPC só aceita snapshot posterior ao já gravado.
+- B sem backup no aparelho de A: editar antes de responder à pergunta NÃO pode enviar dados. Só a confirmação explícita autoriza.
+- Exclusão de conta pelo app: precisa responder ok e apagar em CASCADE as três tabelas. Tentar enviar dados durante e depois da exclusão: nada pode reaparecer.
+- Com cobrança ligada, simular falha do RevenueCat durante a exclusão: o registro em account_deletions bloqueia novos envios e os dados ficam até concluir. O usuário repete a exclusão; o suporte acompanha as pendências.
+
+Tudo certo? **Apague o schema `backup`** (item 1).
+
+## 9. Webhook do RevenueCat (só quando a cobrança for ligada)
+Configure o webhook **depois** que a função estiver publicada e o item 8 passar: URL da função + o segredo do item 3.
+O evento TEST retorna 200 sem gravar assinatura. Para confirmar o caminho completo, teste compras reais de licença.
+- Repetir o webhook e inverter a ordem dos eventos: a função consulta o estado atual, e a RPC só aceita um snapshot mais novo que o gravado.
 - Restaurar em outra conta: testar a política de transferência escolhida no RevenueCat. Nenhum UUID recebe assinatura só por aparecer em TRANSFER.
 
-Excluir cliente no RevenueCat não cancela a assinatura na Play. A função não solicita cancelamento automático.
+Excluir o cliente no RevenueCat não cancela a assinatura na loja. A função não pede cancelamento automático.
