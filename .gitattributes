@@ -1,0 +1,9 @@
+# Mantém LF no checkout em qualquer sistema. Com core.autocrlf=true no Windows,
+# os testes que removem "import ...;\n" das Edge Functions quebravam com \r\n.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.jks binary
+*.keystore binary
